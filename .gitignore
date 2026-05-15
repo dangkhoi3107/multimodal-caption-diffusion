@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data and model checkpoints
+data/raw/
+data/processed/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Outputs
+outputs/**/*.png
+outputs/**/*.jpg
+outputs/**/*.jpeg
+outputs/**/*.gif
+
+# OS
+.DS_Store
+Thumbs.db
