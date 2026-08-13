@@ -6,5 +6,5 @@ opencv-python
 matplotlib
 Pillow
 tqdm
-transformers
-tokenizers
+PyYAML
+pytest

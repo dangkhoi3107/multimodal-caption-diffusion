@@ -5,6 +5,9 @@ __pycache__/
 .venv/
 venv/
 env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -23,6 +26,13 @@ outputs/**/*.png
 outputs/**/*.jpg
 outputs/**/*.jpeg
 outputs/**/*.gif
+outputs/**/*.mp4
+outputs/**/*.npy
+outputs/**/*.npz
+
+# Experiment/runtime logs
+runs/
+*.log
 
 # OS
 .DS_Store
