@@ -1,0 +1,28 @@
+seed: 42
+
+gaussian_mixture:
+  num_samples: 5000
+
+diffusion:
+  num_timesteps: 1000
+  beta_start: 0.0001
+  beta_end: 0.02
+  plot_timesteps:
+    - 0
+    - 100
+    - 300
+    - 600
+    - 999
+
+score:
+  grid_min: -4.0
+  grid_max: 4.0
+  grid_points: 20
+
+ode:
+  x0: 5.0
+  final_time: 3.0
+  step_sizes:
+    - 0.2
+    - 0.1
+    - 0.01

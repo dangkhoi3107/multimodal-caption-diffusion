@@ -68,6 +68,98 @@ Xây dựng hai hướng multimodal generation hoàn toàn từ random initializ
 
 `A1–A11` là track nâng cao. MVP sản phẩm hoàn thành ở Phase 3; không được tuyên bố A-checkpoint đã hoàn thành chỉ vì model cùng tên tồn tại trên mạng.
 
+### Reading map theo checkpoint
+
+Reading map này chỉ ra tài liệu cần đọc trước mỗi checkpoint. Không cần đọc toàn bộ ngay từ đầu. Với mỗi checkpoint, dùng vòng lặp:
+
+```text
+đọc tài liệu nền tảng
+→ đọc abstract/introduction và phần method của paper gốc
+→ viết lại công thức bằng tensor name/shape của project
+→ implement toy/vertical slice
+→ test và visual QA
+→ cuối cùng mới xem official code để đối chiếu
+```
+
+Official code và online model chỉ là nguồn tham khảo. Không copy implementation lõi, không tải pretrained weights và không dùng chúng làm kết quả của scratch track.
+
+#### F0 — Thứ tự đọc bắt buộc
+
+F0 là checkpoint duy nhất dùng tiền tố `F`. Sau F0, roadmap dùng `Phase 0–5` cho core/product track và `A1–A11` cho advanced diffusion.
+
+| Thứ tự | Kiến thức | Tài liệu | Sau khi đọc phải làm được |
+|---:|---|---|---|
+| 1 | Vector, matrix, norm và covariance matrix | [Deep Learning Book — Linear Algebra](https://www.deeplearningbook.org/contents/linear_algebra.html) | Giải thích được shape sample `[N,2]`, mean `[2]` và covariance `[2,2]` |
+| 2 | Probability, expectation, variance, conditional probability và Bayes | [Deep Learning Book — Probability and Information Theory](https://www.deeplearningbook.org/contents/prob.html) | Tự tính empirical mean/variance và Monte Carlo estimate |
+| 3 | Covariance và correlation | [MIT OCW — Covariance and Correlation](https://ocw.mit.edu/courses/res-6-012-introduction-to-probability-spring-2018/resources/mitres_6_012s18_l12/) | Giải thích covariance dương, âm và bằng zero |
+| 4 | Multivariate Gaussian và reparameterization | [MIT — Multivariate Gaussian Random Variables](https://ocw.mit.edu/courses/6-438-algorithms-for-inference-fall-2014/4f312f9c99b48b35dae961d24f10c471_MIT6_438F14_Lec6.pdf) | Giải thích và mô phỏng `x = mu + L @ epsilon`, `epsilon ~ N(0,I)` |
+| 5 | Markov chain | [MIT OCW — Markov Chains I](https://ocw.mit.edu/courses/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/pages/unit-iii/lecture-16/) | Giải thích vì sao forward DDPM dùng `q(x_t | x_{t-1})` |
+| 6 | Log-likelihood, entropy, cross-entropy và KL | [Deep Learning Book — Probability and Information Theory](https://www.deeplearningbook.org/contents/prob.html) | Phân biệt likelihood, cross-entropy và hai chiều của KL divergence |
+| 7 | Chain rule và autograd | [PyTorch — Autograd Tutorial](https://docs.pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html) | Theo dõi gradient từ scalar loss về input/parameter |
+| 8 | ODE và Euler method | [MIT — Differential Equations Course Notes](https://math.mit.edu/~dunkel/Teach/18.03/2018_CourseNotes.pdf) | Implement `x_next = x + dt * f(t,x)` và kiểm tra error giảm theo step size |
+| 9 | Brownian motion và trực giác SDE | [NYU — Brownian Motion Notes](https://math.nyu.edu/~goodman/teaching/StochCalc2004/notes/l5.pdf), [NYU — Ito SDE Notes](https://math.nyu.edu/faculty/goodman/teaching/StochCalc/notes/l9.pdf) | Phân biệt deterministic drift `dt` và stochastic increment `dW`; chưa cần giải tích Itô đầy đủ |
+| 10 | Score function | [NCSN paper](https://arxiv.org/abs/1907.05600) | Giải thích `score(x) = grad_x log p(x)` và tính analytic score của Gaussian |
+| 11 | Forward diffusion | [DDPM paper](https://arxiv.org/abs/2006.11239) | Giải thích beta schedule, iterative noising và closed-form `q(x_t | x_0)` |
+
+Thứ tự thực hành tương ứng:
+
+```text
+probability + Gaussian
+→ sinh Gaussian mixture 2D
+→ đo empirical mean/covariance
+
+Markov + DDPM
+→ tạo beta schedule
+→ iterative forward noising
+→ closed-form q(x_t | x_0)
+→ so sánh thống kê hai cách
+
+score
+→ tính analytic score của Gaussian
+→ kiểm tra bằng finite difference
+→ vẽ vector field
+
+ODE
+→ viết Euler integrator
+→ giảm step size
+→ chứng minh numerical error giảm
+```
+
+#### Core/product track
+
+| Checkpoint | Tài liệu nền tảng/paper chính | Official source để đối chiếu | Trọng tâm cần nắm |
+|---|---|---|---|
+| Phase 0 — Product data | [COCO data format](https://cocodataset.org/#format-data) | [Official COCO API](https://github.com/cocodataset/cocoapi) | `images`, `annotations`, polygon segmentation, bbox, category và trace metadata |
+| Phase 1 — Unconditional pixel DDPM | [Diffusion Probabilistic Models — 2015](https://proceedings.mlr.press/v37/sohl-dickstein15.html), [DDPM](https://arxiv.org/abs/2006.11239) | [Official DDPM code](https://github.com/hojonathanho/diffusion) | Schedule, `q_sample`, timestep embedding, epsilon loss, reverse mean/variance và ancestral sampler |
+| Phase 2 — Class conditioning + CFG | [Classifier-Free Diffusion Guidance](https://arxiv.org/abs/2207.12598) | Không dùng pretrained baseline; đối chiếu phương trình trong paper | Class embedding, condition dropout và kết hợp conditional/unconditional prediction khi sampling |
+| Phase 3 — Text conditioning | [Attention Is All You Need](https://arxiv.org/abs/1706.03762), [GLIDE](https://arxiv.org/abs/2112.10741) | [Official GLIDE code](https://github.com/openai/glide-text2im) | Vocabulary, attention, text encoder, cross-attention và text CFG; không dùng pretrained CLIP/T5 |
+
+#### Advanced diffusion track
+
+| Checkpoint | Paper chính | Official source để đối chiếu | Trọng tâm cần nắm |
+|---|---|---|---|
+| A1 — Improved DDPM/EDM | [Improved DDPM](https://proceedings.mlr.press/v139/nichol21a.html), [EDM](https://arxiv.org/abs/2206.00364) | [Improved Diffusion](https://github.com/openai/improved-diffusion), [EDM](https://github.com/NVlabs/edm) | Cosine schedule, reverse variance, EMA, preconditioning và noise-level sampling |
+| A2 — DDIM/fast solvers | [DDIM](https://arxiv.org/abs/2010.02502), [PNDM](https://arxiv.org/abs/2202.09778), [DPM-Solver](https://arxiv.org/abs/2206.00927) | [DDIM](https://github.com/ermongroup/ddim), [PNDM](https://github.com/luping-liu/PNDM), [DPM-Solver](https://github.com/LuChengTHU/dpm-solver) | Phân biệt training objective với sampler/solver; so sánh quality theo NFE |
+| A3 — Spatial conditioning | [ControlNet](https://openaccess.thecvf.com/content/ICCV2023/html/Zhang_Adding_Conditional_Control_to_Text-to-Image_Diffusion_Models_ICCV_2023_paper.html) | [Official ControlNet code](https://github.com/lllyasviel/ControlNet) | Mask/edge control, zero-initialized residual path và spatial alignment |
+| A4 — NCSN/score matching | [NCSN](https://arxiv.org/abs/1907.05600) | [Official NCSN code](https://github.com/ermongroup/ncsn) | Denoising score matching, multiple noise levels và annealed Langevin dynamics |
+| A5 — Score SDE/ODE | [Score SDE](https://openreview.net/forum?id=PxTIG12RRHS) | [Official JAX code](https://github.com/yang-song/score_sde), [official PyTorch code](https://github.com/yang-song/score_sde_pytorch) | Forward SDE, reverse-time SDE, predictor-corrector và probability-flow ODE |
+| A6 — Autoencoder/VAE | [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114) | Paper là nguồn đối chiếu chính; implementation vẫn tự xây | Reconstruction, posterior mean/log-variance, reparameterization và KL gate |
+| A7 — Latent diffusion | [Latent Diffusion Models](https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper.html) | [Official LDM code](https://github.com/CompVis/latent-diffusion) | Tách reconstruction error khỏi diffusion error; normalize latent trước khi train diffusion |
+| A8 — Mini-DiT | [Scalable Diffusion Models with Transformers](https://arxiv.org/abs/2212.09748) | [Official DiT code](https://github.com/facebookresearch/DiT) | Patchify, positional embedding, timestep/condition modulation và unpatchify |
+| A9 — Consistency models | [Consistency Models](https://proceedings.mlr.press/v202/song23a.html) | [Official code](https://github.com/openai/consistency_models) | Boundary condition, teacher/student pair và one/few-step generation |
+| A10 — Flow Matching/Rectified Flow | [Flow Matching](https://arxiv.org/abs/2210.02747), [Rectified Flow](https://arxiv.org/abs/2209.03003) | [Flow Matching](https://github.com/facebookresearch/flow_matching), [Rectified Flow](https://github.com/gnobitab/RectifiedFlow) | Probability path, conditional velocity, vector-field regression, Euler/Heun và reflow |
+| A11 — SD3/FLUX study | [SD3 technical paper](https://arxiv.org/abs/2403.03206) | [SD3 model card](https://huggingface.co/stabilityai/stable-diffusion-3-medium), [FLUX official code](https://github.com/black-forest-labs/flux) | Map formulation, latent representation, Transformer backbone, text conditioning và solver; không train scale gốc |
+
+#### Image captioning và evaluation
+
+| Checkpoint | Tài liệu | Trọng tâm cần nắm |
+|---|---|---|
+| Phase 4 — CNN + Transformer captioning | [Show and Tell](https://arxiv.org/abs/1411.4555), [Show, Attend and Tell](https://proceedings.mlr.press/v37/xuc15.html), [Attention Is All You Need](https://arxiv.org/abs/1706.03762) | Spatial visual tokens, causal self-attention, cross-attention, teacher forcing và autoregressive decoding |
+| Phase 4 — BLEU evaluation | [BLEU paper](https://aclanthology.org/P02-1040/) | Modified n-gram precision, brevity penalty và nhiều reference captions |
+| Phase 5 — Reproducibility | [PyTorch Reproducibility Notes](https://docs.pytorch.org/docs/stable/notes/randomness.html) | Seed/config/environment capture, deterministic limitations và fair ablation protocol |
+
+Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0–Phase 5. Chỉ đọc chúng như phần mở rộng sau khi scratch text-conditioned diffusion đã hoạt động; xem mục fine-tuning trong [model catalog](docs/references/model-catalog.md).
+
 ### Ngoài scope
 
 - Ảnh photorealistic 512×512 hoặc Stable Diffusion scale.
@@ -80,7 +172,7 @@ Xây dựng hai hướng multimodal generation hoàn toàn từ random initializ
 
 ### Master progress
 
-- [ ] F0 — Math and toy distributions.
+- [x] F0 — Math and toy distributions.
 - [ ] Phase 0 — Product data preparation.
 - [ ] Phase 1 — Unconditional pixel DDPM.
 - [ ] A1 — Improved DDPM/EDM design experiments.
@@ -181,16 +273,16 @@ Chứng minh các primitive toán học bằng scalar/2D data trước khi gắn
 
 ## F0.3 Checklist implementation
 
-- [ ] Tạo Gaussian mixture 2D bằng NumPy/PyTorch với seed cố định.
-- [ ] Kiểm tra empirical mean/covariance gần giá trị cấu hình.
-- [ ] Viết linear beta schedule trên vector `[T]`.
-- [ ] Mô phỏng iterative forward noising.
-- [ ] Viết closed-form sample `x_t` và so sánh phân phối với iterative version.
-- [ ] Vẽ scatter tại ít nhất 5 timestep.
-- [ ] Tính analytic score của Gaussian 2D và kiểm tra bằng finite difference.
-- [ ] Vẽ score vector field trên grid.
-- [ ] Viết Euler integrator cho một ODE đơn giản và test convergence khi giảm step size.
-- [ ] Lưu công thức ↔ tensor mapping trong experiment summary.
+- [x] Tạo Gaussian mixture 2D bằng NumPy/PyTorch với seed cố định.
+- [x] Kiểm tra empirical mean/covariance gần giá trị cấu hình.
+- [x] Viết linear beta schedule trên vector `[T]`.
+- [x] Mô phỏng iterative forward noising.
+- [x] Viết closed-form sample `x_t` và so sánh phân phối với iterative version.
+- [x] Vẽ scatter tại ít nhất 5 timestep.
+- [x] Tính analytic score của Gaussian 2D và kiểm tra bằng finite difference.
+- [x] Vẽ score vector field trên grid.
+- [x] Viết Euler integrator cho một ODE đơn giản và test convergence khi giảm step size.
+- [x] Lưu công thức ↔ tensor mapping trong experiment summary.
 
 ## F0.4 Output bắt buộc
 
@@ -206,11 +298,11 @@ outputs/f0_math_toy/<run_id>/
 
 ## F0.5 Definition of Done
 
-- [ ] Numerical statistics tests pass với tolerance được ghi rõ.
-- [ ] Closed-form và iterative forward process có distribution statistics phù hợp.
-- [ ] Score finite-difference test pass ngoài điểm density quá nhỏ.
-- [ ] Euler test cho thấy error giảm khi step size giảm.
-- [ ] Có thể giải thích từng ký hiệu bằng tên tensor và shape.
+- [x] Numerical statistics tests pass với tolerance được ghi rõ.
+- [x] Closed-form và iterative forward process có distribution statistics phù hợp.
+- [x] Score finite-difference test pass ngoài điểm density quá nhỏ.
+- [x] Euler test cho thấy error giảm khi step size giảm.
+- [x] Có thể giải thích từng ký hiệu bằng tên tensor và shape.
 
 ---
 
