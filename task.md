@@ -174,7 +174,7 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 
 - [x] F0 — Math and toy distributions.
 - [x] Phase 0 — Product data preparation.
-- [ ] Phase 1 — Unconditional pixel DDPM.
+- [ ] Phase 1 — Unconditional pixel DDPM. **Core implementation/training/sampling đã chạy end-to-end; phase gate còn chờ các evidence item chưa hoàn tất trong mục 1.4/1.6.**
 - [ ] A1 — Improved DDPM/EDM design experiments.
 - [ ] A2 — DDIM and optional fast solvers.
 - [ ] Phase 2 — Class-conditioned DDPM + CFG.
@@ -199,10 +199,10 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 - [x] Dataset hiện tại có `train`, `valid`, `test` không trùng source image.
 - [x] Dataset hiện tại có 104 ảnh và 144 instance của một SKU Lifebuoy.
 - [x] Polygon COCO hiện tại có segmentation, bbox, area và category hợp lệ.
-- [ ] Chưa có processed crop dataset.
-- [ ] Chưa có model diffusion.
+- [x] Đã có processed crop dataset `data/processed/products_64/` với train/valid/test metadata và QA artifacts.
+- [x] Đã có unconditional pixel-space DDPM Phase 1: scheduler, timestep embedding, U-Net, trainer và sampler.
 - [ ] Chưa có model captioning.
-- [ ] Chưa có training/evaluation pipeline.
+- [x] Đã có Phase 1 training/validation/sampling pipeline; checkpoint và experiment artifacts được lưu local/Kaggle, không commit model weights.
 
 ## 3. Cấu trúc repository mục tiêu
 
@@ -326,12 +326,12 @@ Phase này chưa train model. Output phải deterministic khi dùng cùng config
 
 ## 0.2 Chuẩn bị trước khi code
 
-- [ ] Xác nhận đường dẫn raw dataset trong config, không hardcode.
-- [ ] Ghi lại số ảnh, số annotation và class theo từng split.
-- [ ] Xác nhận `category_id=0` nếu chỉ là supercategory sẽ không trở thành class train.
-- [ ] Chốt output size ban đầu: `64×64`.
-- [ ] Chốt margin quanh bbox: bắt đầu `5%` hoặc `10%`.
-- [ ] Chốt background baseline: trắng hoàn toàn trước, random neutral là ablation sau.
+- [x] Xác nhận đường dẫn raw dataset trong config, không hardcode.
+- [x] Ghi lại số ảnh, số annotation và class theo từng split.
+- [x] Xác nhận `category_id=0` nếu chỉ là supercategory sẽ không trở thành class train.
+- [x] Chốt output size ban đầu: `64×64`.
+- [x] Chốt margin quanh bbox: `10%` cho baseline.
+- [x] Chốt background baseline: trắng hoàn toàn; random neutral để ablation sau.
 - [ ] Chốt tiêu chí bỏ crop: polygon rỗng, bbox không hợp lệ, crop quá nhỏ hoặc ảnh đọc lỗi.
 
 ## 0.3 File và idea dự kiến
@@ -511,19 +511,19 @@ Model học dự đoán noise `epsilon` từ `x_t` và timestep `t`.
 
 ## 1.2 Kiến thức/công thức phải hiểu trước
 
-- [ ] Giải thích `beta_t`, `alpha_t = 1 - beta_t`.
-- [ ] Giải thích `alpha_bar_t = product(alpha_1 ... alpha_t)`.
-- [ ] Mapping công thức sang tensor shape `[T]`.
-- [ ] Giải thích sampling trực tiếp:
+- [x] Giải thích `beta_t`, `alpha_t = 1 - beta_t`.
+- [x] Giải thích `alpha_bar_t = product(alpha_1 ... alpha_t)`.
+- [x] Mapping công thức sang tensor shape `[T]`.
+- [x] Giải thích sampling trực tiếp:
 
 ```text
 x_t = sqrt(alpha_bar_t) * x_0
     + sqrt(1 - alpha_bar_t) * epsilon
 ```
 
-- [ ] Giải thích target `epsilon` và MSE loss.
-- [ ] Giải thích vì sao U-Net cần timestep embedding.
-- [ ] Giải thích reverse mean, variance và noise tại `t > 0`.
+- [x] Giải thích target `epsilon` và MSE loss.
+- [x] Giải thích vì sao U-Net cần timestep embedding.
+- [x] Giải thích reverse mean, variance và noise tại `t > 0`.
 
 ## 1.3 File và idea dự kiến
 
@@ -600,74 +600,93 @@ Invariant: coefficients cùng device/dtype với input; `t` shape `[B]`, dtype i
 
 ### A. Scheduler
 
-- [ ] Implement linear beta schedule.
-- [ ] Assert `0 < beta_t < 1` và monotonic cho config baseline.
-- [ ] Precompute alphas, cumulative products và posterior coefficients.
-- [ ] Implement batch-safe `extract`.
-- [ ] Implement `q_sample` với noise truyền vào để test deterministic.
-- [ ] Test `q_sample` shape/device/dtype.
+- [x] Implement linear beta schedule.
+- [x] Assert `0 < beta_t < 1` và monotonic cho config baseline.
+- [x] Precompute alphas, cumulative products và posterior coefficients.
+- [x] Implement batch-safe `extract`.
+- [x] Implement `q_sample` với noise truyền vào để test deterministic.
+- [x] Test `q_sample` shape/device/dtype.
 - [ ] Visualize cùng một ảnh tại `t = 0, 100, 300, 500, 999`.
 - [ ] Xác nhận timestep cuối gần Gaussian noise.
 
 ### B. Timestep embedding
 
-- [ ] Implement sin/cos embedding không dùng thư viện model cấp cao.
-- [ ] Xử lý embedding dimension lẻ.
-- [ ] Test cùng timestep cho cùng vector.
-- [ ] Test timestep khác tạo vector khác.
-- [ ] Implement two-layer MLP.
+- [x] Implement sin/cos embedding không dùng thư viện model cấp cao.
+- [x] Xử lý embedding dimension lẻ.
+- [x] Test cùng timestep cho cùng vector.
+- [x] Test timestep khác tạo vector khác.
+- [x] Implement two-layer MLP.
 
 ### C. U-Net blocks
 
-- [ ] Implement normalization + activation + conv order đã chọn và document.
-- [ ] Project time embedding vào channel dimension.
-- [ ] Implement residual shortcut khi input/output channels khác nhau.
-- [ ] Test gradient đi qua time projection.
-- [ ] Implement downsample.
-- [ ] Implement upsample.
-- [ ] Test từng block với batch > 1.
+- [x] Implement normalization + activation + conv order đã chọn và document.
+- [x] Project time embedding vào channel dimension.
+- [x] Implement residual shortcut khi input/output channels khác nhau.
+- [x] Test gradient đi qua time projection.
+- [x] Implement downsample.
+- [x] Implement upsample.
+- [x] Test từng block với batch > 1.
 
 ### D. Full U-Net
 
-- [ ] Vẽ/báo cáo channel và resolution ở từng stage.
-- [ ] Implement down path và lưu skip tensors.
-- [ ] Implement middle blocks.
-- [ ] Implement up path và concatenate/add skip đúng channel.
-- [ ] Output conv trả đúng 3 channels.
-- [ ] Test input/output `[2, 3, 64, 64]`.
-- [ ] Test loss backward tạo finite gradients.
-- [ ] Báo cáo parameter count.
-- [ ] Chưa thêm attention nếu baseline chưa pass.
+- [x] Vẽ/báo cáo channel và resolution ở từng stage.
+- [x] Implement down path và lưu skip tensors.
+- [x] Implement middle blocks.
+- [x] Implement up path và concatenate/add skip đúng channel.
+- [x] Output conv trả đúng 3 channels.
+- [x] Test input/output `[2, 3, 64, 64]`.
+- [x] Test loss backward tạo finite gradients.
+- [x] Báo cáo parameter count.
+- [x] Chưa thêm attention nếu baseline chưa pass.
 
 ### E. Training correctness ladder
 
-- [ ] Implement random timestep per sample.
-- [ ] Implement random Gaussian noise cùng shape `x_0`.
-- [ ] Implement epsilon-prediction MSE.
-- [ ] Overfit **một ảnh**; đặt tiêu chí loss/sample trước khi chạy.
+- [x] Implement random timestep per sample.
+- [x] Implement random Gaussian noise cùng shape `x_0`.
+- [x] Implement epsilon-prediction MSE.
+- [x] Overfit **một ảnh**; đặt tiêu chí loss/sample trước khi chạy.
 - [ ] Lưu fixed-noise sample trong one-image experiment.
-- [ ] Overfit **một mini-batch 8–16 ảnh**.
-- [ ] Xác nhận không NaN/Inf ở loss và gradient.
-- [ ] Chỉ sau đó train toàn train split.
-- [ ] Validation chỉ đo trên valid split, không update parameter.
+- [x] Overfit **một mini-batch 8–16 ảnh**.
+- [x] Xác nhận không NaN/Inf ở loss và gradient.
+- [x] Chỉ sau đó train toàn train split.
+- [x] Validation chỉ đo trên valid split, không update parameter.
 
 ### F. Reverse sampling
 
-- [ ] Implement reverse mean.
-- [ ] Implement posterior variance.
-- [ ] Không thêm random noise khi `t=0`.
-- [ ] Implement full loop `T-1 → 0`.
-- [ ] Hỗ trợ fixed `torch.Generator`.
-- [ ] Test cùng seed/checkpoint tạo cùng output.
+- [x] Implement reverse mean.
+- [x] Implement posterior variance.
+- [x] Không thêm random noise khi `t=0`.
+- [x] Implement full loop `T-1 → 0`.
+- [x] Hỗ trợ fixed `torch.Generator`.
+- [x] Test cùng seed/checkpoint tạo cùng output.
 - [ ] Lưu denoising trajectory có số frame giới hạn.
-- [ ] Clamp/unnormalize chỉ ở visualization boundary, không giấu lỗi trong model.
+- [x] Visualization clamp/unnormalize chỉ ở boundary; `predicted_x_0` clipping trong reverse sampler được document như một lựa chọn ổn định hóa thuật toán. Final sample đã được kiểm tra không còn overflow ngoài `[-1, 1]`.
+
+### Bằng chứng Phase 1 hiện có
+
+- Overfit one-image: noise-prediction MSE giảm mạnh trong 1000 steps; không NaN/Inf.
+- Overfit mini-batch 8 ảnh: correctness gate pass.
+- Full training trên `97` train / `31` valid images bằng CUDA; U-Net có `4,603,587` parameters.
+- Best checkpoint ở epoch `98`: train loss `0.0223723`, valid loss `0.0422775`.
+- Reverse sampler từng bị positive drift; đã sửa bằng posterior mean từ clipped `predicted_x_0` và regression tests.
+- Final fixed-seed sample stats sau fix: min `-0.999834`, max `0.999834`, mean `0.495197`, std `0.575636`, tỷ lệ `< -1` và `> 1` đều bằng `0`.
+- Final sample grid đã sinh được nhiều product-like image màu đỏ/nền trắng, không còn pure noise/white collapse.
+
+### Evidence còn thiếu để đóng Phase 1 gate
+
+- [ ] Forward-noising visualization của **ảnh thật** tại `t = 0, 100, 300, 500, 999`.
+- [ ] Báo cáo thống kê/chứng minh `x_999` của ảnh thật gần Gaussian noise.
+- [ ] Lưu fixed-noise sample riêng cho one-image overfit experiment.
+- [ ] Xác nhận/snapshot denoising trajectory cuối cùng vào artifact path chuẩn.
+- [ ] Smoke test resume checkpoint.
+- [ ] Ghi hardware, duration và git commit cho run baseline.
 
 ### G. Experiment hygiene
 
 - [ ] Config lưu cùng run.
-- [ ] Checkpoint có model, optimizer, epoch/step, config, seed.
+- [x] Checkpoint có model, optimizer, epoch/step, config, seed.
 - [ ] Resume checkpoint được smoke test.
-- [ ] Loss curve được lưu.
+- [x] Loss curve được lưu.
 - [ ] Sample grid dùng fixed seed qua các epoch.
 - [ ] Ghi hardware, duration và git commit nếu có.
 
@@ -689,13 +708,13 @@ outputs/phase1_unconditional/<run_id>/
 
 ## 1.6 Definition of Done
 
-- [ ] Scheduler/unit/shape/gradient tests pass.
+- [x] Scheduler/unit/shape/gradient tests pass.
 - [ ] Forward diffusion visualization đúng trực quan.
-- [ ] Model overfit được một ảnh.
-- [ ] Model overfit được mini-batch.
-- [ ] Reverse sampler deterministic với fixed seed và không NaN.
-- [ ] Full dataset training có checkpoint, curve và samples.
-- [ ] Sample có cấu trúc/màu sắc khác pure noise, không yêu cầu logo đúng.
+- [x] Model overfit được một ảnh.
+- [x] Model overfit được mini-batch.
+- [x] Reverse sampler deterministic với fixed seed và không NaN.
+- [x] Full dataset training có checkpoint, curve và samples.
+- [x] Sample có cấu trúc/màu sắc khác pure noise, không yêu cầu logo đúng.
 
 ---
 
@@ -1754,27 +1773,33 @@ Mỗi ablation phải giữ các biến còn lại càng giống càng tốt và
 
 # 7. Mốc tiếp theo hiện tại
 
-Checkpoint active tiếp theo là **F0 — Math and Toy Distributions**. Sau numerical gate đầu tiên, thực hiện song song phần không phụ thuộc model của **Phase 0 — Product Data Preparation**.
+Checkpoint active là **đóng Phase 1 evidence gate**, không quay lại F0/Phase 0.
 
-Vertical slice code đầu tiên của data nên là:
-
-```text
-đọc một COCO annotation
-→ tạo một binary mask
-→ crop một instance
-→ letterbox 64×64
-→ lưu/hiển thị một ảnh QA
-→ viết test cho shape và bounds
-```
-
-Không batch-process toàn bộ dataset trước khi vertical slice một instance được kiểm chứng trực quan.
-
-Vertical slice F0 đầu tiên:
+Core DDPM hiện đã chạy end-to-end:
 
 ```text
-sample Gaussian mixture 2D
-→ kiểm tra empirical mean/covariance
-→ thêm noise tại nhiều timestep
-→ vẽ forward trajectory
-→ so sánh iterative và closed-form statistics
+processed product crops
+→ random timestep + Gaussian noise
+→ epsilon-prediction U-Net
+→ full train/validation
+→ best checkpoint
+→ ancestral reverse DDPM
+→ product-like 64×64 samples
 ```
+
+Việc nhỏ nhất tiếp theo:
+
+```text
+1. Sinh forward-noising visualization trên một ảnh thật
+   tại t = 0, 100, 300, 500, 999.
+2. Ghi stats để xác nhận x_999 gần Gaussian.
+3. Dùng one-image checkpoint sinh và lưu fixed-noise sample.
+4. Lưu final denoising trajectory vào artifact path chuẩn.
+5. Smoke-test resume checkpoint và ghi environment/run metadata.
+6. Khi toàn bộ Phase 1 Definition of Done + evidence bắt buộc đủ,
+   đổi Master progress của Phase 1 thành [x].
+```
+
+Sau khi Phase 1 gate đóng, core track tiếp theo là **Phase 2 — Class-Conditioned DDPM + CFG**. Tuy nhiên dataset hiện tại chỉ có một SKU/class, vì vậy dependency dữ liệu đầu tiên của Phase 2 là mở rộng lên tối thiểu `2` class (khuyên `3–5` class), chạy lại Phase 0 preprocessing/QA cho multi-class dataset, rồi mới implement class embedding và classifier-free guidance.
+
+Các nhánh **A1 — Improved DDPM/EDM** và **A2 — DDIM/Fast Sampling** có thể bắt đầu sau khi Phase 1 gate chính thức đóng nếu muốn nghiên cứu sâu diffusion trước Phase 2.
