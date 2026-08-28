@@ -267,6 +267,39 @@ class DDPMScheduler:
             )
         )
 
+        # Posterior mean coefficients for:
+        #
+        # q(x_{t-1} | x_t, x_0)
+        # =
+        # N(
+        #   coef1_t * x_0 + coef2_t * x_t,
+        #   posterior_variance_t I
+        # )
+        self.posterior_mean_coef1 = (
+            self.betas
+            * torch.sqrt(
+                self.alpha_bars_prev
+            )
+            / (
+                1.0
+                - self.alpha_bars
+            )
+        )
+
+        self.posterior_mean_coef2 = (
+            (
+                1.0
+                - self.alpha_bars_prev
+            )
+            * torch.sqrt(
+                self.alphas
+            )
+            / (
+                1.0
+                - self.alpha_bars
+            )
+        )
+
     def q_sample(
         self,
         x_0: torch.Tensor,
@@ -336,7 +369,9 @@ class DDPMScheduler:
         model_output: torch.Tensor,
         x_t: torch.Tensor,
         timesteps: torch.Tensor,
+        clip_denoised: bool = True,
     ) -> tuple[
+        torch.Tensor,
         torch.Tensor,
         torch.Tensor,
     ]:
@@ -372,8 +407,8 @@ class DDPMScheduler:
             device=x_t.device
         )
 
-        betas_t = extract(
-            values=self.betas.to(
+        sqrt_alpha_bars_t = extract(
+            values=self.sqrt_alpha_bars.to(
                 device=x_t.device,
                 dtype=x_t.dtype,
             ),
@@ -381,17 +416,8 @@ class DDPMScheduler:
             target_shape=x_t.shape,
         )
 
-        alphas_t = extract(
-            values=self.alphas.to(
-                device=x_t.device,
-                dtype=x_t.dtype,
-            ),
-            timesteps=timesteps,
-            target_shape=x_t.shape,
-        )
-
-        alpha_bars_t = extract(
-            values=self.alpha_bars.to(
+        sqrt_one_minus_alpha_bars_t = extract(
+            values=self.sqrt_one_minus_alpha_bars.to(
                 device=x_t.device,
                 dtype=x_t.dtype,
             ),
@@ -408,32 +434,59 @@ class DDPMScheduler:
             target_shape=x_t.shape,
         )
 
-        # DDPM epsilon-prediction reverse mean:
+        posterior_mean_coef1_t = extract(
+            values=self.posterior_mean_coef1.to(
+                device=x_t.device,
+                dtype=x_t.dtype,
+            ),
+            timesteps=timesteps,
+            target_shape=x_t.shape,
+        )
+
+        posterior_mean_coef2_t = extract(
+            values=self.posterior_mean_coef2.to(
+                device=x_t.device,
+                dtype=x_t.dtype,
+            ),
+            timesteps=timesteps,
+            target_shape=x_t.shape,
+        )
+
+        # Recover predicted x_0 from the epsilon prediction:
         #
-        # mu_theta =
-        # 1 / sqrt(alpha_t)
-        # * (
-        #     x_t
-        #     - beta_t / sqrt(1 - alpha_bar_t)
-        #       * epsilon_theta(x_t, t)
-        # )
-        model_mean = (
-            1.0
-            / torch.sqrt(alphas_t)
-        ) * (
+        # x_t =
+        # sqrt(alpha_bar_t) * x_0
+        # + sqrt(1 - alpha_bar_t) * epsilon
+        predicted_x_0 = (
             x_t
-            - (
-                betas_t
-                / torch.sqrt(
-                    1.0 - alpha_bars_t
-                )
-            )
+            - sqrt_one_minus_alpha_bars_t
             * model_output
+        ) / sqrt_alpha_bars_t
+
+        # Training images are normalized to [-1, 1].
+        # Clipping predicted x_0 before computing the posterior mean
+        # helps prevent the reverse chain from drifting outside the
+        # training-data range.
+        if clip_denoised:
+            predicted_x_0 = predicted_x_0.clamp(
+                -1.0,
+                1.0,
+            )
+
+        # Posterior mean:
+        #
+        # q(x_{t-1} | x_t, predicted_x_0)
+        model_mean = (
+            posterior_mean_coef1_t
+            * predicted_x_0
+            + posterior_mean_coef2_t
+            * x_t
         )
 
         return (
             model_mean,
             posterior_variance_t,
+            predicted_x_0,
         )
 
     @torch.no_grad()
@@ -474,10 +527,12 @@ class DDPMScheduler:
         (
             model_mean,
             posterior_variance,
+            _predicted_x_0,
         ) = self.p_mean_variance(
             model_output=model_output,
             x_t=x_t,
             timesteps=timesteps,
+            clip_denoised=True,
         )
 
         noise = torch.randn(

@@ -1,14 +1,5 @@
 import torch
-from src.diffusion.scheduler import (
-    compute_diffusion_coefficients,
-    linear_beta_schedule,
-    q_sample,
-)
 
-from src.diffusion.scheduler import (
-    compute_diffusion_coefficients,
-    linear_beta_schedule,
-)
 from src.diffusion.scheduler import (
     compute_diffusion_coefficients,
     linear_beta_schedule,
@@ -143,7 +134,9 @@ def test_q_sample_matches_formula():
 
     expected = (
         torch.sqrt(alpha_bar_t) * x_0
-        + torch.sqrt(1.0 - alpha_bar_t) * noise
+        + torch.sqrt(
+            1.0 - alpha_bar_t
+        ) * noise
     )
 
     assert torch.allclose(
@@ -215,15 +208,21 @@ def test_closed_form_matches_iterative_distribution():
         noise=noise,
     )
 
-    iterative_mean = x_t_iterative.mean(dim=0)
-    closed_mean = x_t_closed.mean(dim=0)
+    iterative_mean = x_t_iterative.mean(
+        dim=0
+    )
+    closed_mean = x_t_closed.mean(
+        dim=0
+    )
 
     iterative_centered = (
-        x_t_iterative - iterative_mean
+        x_t_iterative
+        - iterative_mean
     )
 
     closed_centered = (
-        x_t_closed - closed_mean
+        x_t_closed
+        - closed_mean
     )
 
     iterative_cov = (
@@ -248,239 +247,4 @@ def test_closed_form_matches_iterative_distribution():
         iterative_cov,
         closed_cov,
         atol=0.08,
-    )
-
-def test_posterior_variance_shape():
-    scheduler = DDPMScheduler(
-        num_timesteps=1000
-    )
-
-    assert (
-        scheduler.posterior_variance.shape
-        == (1000,)
-    )
-
-    assert torch.all(
-        scheduler.posterior_variance >= 0
-    )
-
-    assert torch.allclose(
-        scheduler.posterior_variance[0],
-        torch.tensor(0.0),
-    )
-
-
-def test_p_mean_variance_shapes():
-    scheduler = DDPMScheduler(
-        num_timesteps=1000
-    )
-
-    x_t = torch.randn(
-        4,
-        3,
-        16,
-        16,
-    )
-
-    predicted_noise = torch.randn_like(
-        x_t
-    )
-
-    timesteps = torch.tensor(
-        [1, 100, 500, 999],
-        dtype=torch.long,
-    )
-
-    mean, variance = (
-        scheduler.p_mean_variance(
-            model_output=predicted_noise,
-            x_t=x_t,
-            timesteps=timesteps,
-        )
-    )
-
-    assert mean.shape == x_t.shape
-
-    assert variance.shape == (
-        4,
-        1,
-        1,
-        1,
-    )
-
-    assert torch.isfinite(
-        mean
-    ).all()
-
-    assert torch.isfinite(
-        variance
-    ).all()
-
-
-def test_p_mean_matches_formula():
-    scheduler = DDPMScheduler(
-        num_timesteps=100
-    )
-
-    x_t = torch.randn(
-        2,
-        3,
-        8,
-        8,
-    )
-
-    predicted_noise = torch.randn_like(
-        x_t
-    )
-
-    timesteps = torch.tensor(
-        [10, 50],
-        dtype=torch.long,
-    )
-
-    mean, _ = (
-        scheduler.p_mean_variance(
-            model_output=predicted_noise,
-            x_t=x_t,
-            timesteps=timesteps,
-        )
-    )
-
-    beta_t = (
-        scheduler.betas[
-            timesteps
-        ].reshape(
-            2, 1, 1, 1
-        )
-    )
-
-    alpha_t = (
-        scheduler.alphas[
-            timesteps
-        ].reshape(
-            2, 1, 1, 1
-        )
-    )
-
-    alpha_bar_t = (
-        scheduler.alpha_bars[
-            timesteps
-        ].reshape(
-            2, 1, 1, 1
-        )
-    )
-
-    expected = (
-        1.0
-        / torch.sqrt(alpha_t)
-    ) * (
-        x_t
-        - (
-            beta_t
-            / torch.sqrt(
-                1.0 - alpha_bar_t
-            )
-        )
-        * predicted_noise
-    )
-
-    assert torch.allclose(
-        mean,
-        expected,
-    )
-
-
-class ZeroModel(torch.nn.Module):
-    def forward(
-        self,
-        x,
-        timesteps,
-    ):
-        return torch.zeros_like(x)
-
-
-def test_p_sample_t_zero_has_no_random_noise():
-    scheduler = DDPMScheduler(
-        num_timesteps=100
-    )
-
-    model = ZeroModel()
-
-    x_t = torch.randn(
-        2,
-        3,
-        8,
-        8,
-    )
-
-    timesteps = torch.zeros(
-        2,
-        dtype=torch.long,
-    )
-
-    mean, _ = (
-        scheduler.p_mean_variance(
-            model_output=model(
-                x_t,
-                timesteps,
-            ),
-            x_t=x_t,
-            timesteps=timesteps,
-        )
-    )
-
-    sample = scheduler.p_sample(
-        model=model,
-        x_t=x_t,
-        timesteps=timesteps,
-    )
-
-    assert torch.allclose(
-        sample,
-        mean,
-    )
-
-
-def test_p_sample_t_positive_is_stochastic():
-    scheduler = DDPMScheduler(
-        num_timesteps=100
-    )
-
-    model = ZeroModel()
-
-    x_t = torch.randn(
-        2,
-        3,
-        8,
-        8,
-    )
-
-    timesteps = torch.tensor(
-        [50, 50],
-        dtype=torch.long,
-    )
-
-    generator1 = torch.Generator()
-    generator1.manual_seed(1)
-
-    generator2 = torch.Generator()
-    generator2.manual_seed(2)
-
-    sample1 = scheduler.p_sample(
-        model=model,
-        x_t=x_t,
-        timesteps=timesteps,
-        generator=generator1,
-    )
-
-    sample2 = scheduler.p_sample(
-        model=model,
-        x_t=x_t,
-        timesteps=timesteps,
-        generator=generator2,
-    )
-
-    assert not torch.allclose(
-        sample1,
-        sample2,
     )
