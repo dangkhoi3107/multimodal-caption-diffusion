@@ -1,0 +1,32 @@
+output_root: data/processed/products_multiclass_64
+
+splits:
+  - train
+  - valid
+  - test
+
+annotation_filename: _annotations.coco.json
+
+image_size: 64
+margin_ratio: 0.10
+background_mode: white
+seed: 42
+
+sources:
+  - class_id: 0
+    class_name: dove_body_serum_glow_recharge_547ml
+    raw_root: data/raw/products/dove_body_serum_glow_recharge_547ml/coco
+    coco_category_id: 1
+    coco_category_name: DOVE_ST_SerumDuongTheSangDaGlowRecharge_547ml_chai
+
+  - class_id: 1
+    class_name: dove_deodorant_niacinamide_omega_40ml
+    raw_root: data/raw/products/dove_deodorant_niacinamide_omega_40ml/coco
+    coco_category_id: 1
+    coco_category_name: DOVE_Nu_KemNganMuiHHoaNiaOmega_40ml_tuyp
+
+  - class_id: 2
+    class_name: lifebuoy_handwash_vitamin_protection_400g
+    raw_root: data/raw/products/lifebuoy_handwash_vitamin_protection_400g/coco
+    coco_category_id: 1
+    coco_category_name: LIFEBUOY_NuocRuaTayVitaminBaoVeVuotTroi_400g_tui

@@ -1,0 +1,31 @@
+data:
+  train_metadata: data/processed/products_multiclass_64/train.jsonl
+  valid_metadata: data/processed/products_multiclass_64/valid.jsonl
+  classes: data/processed/products_multiclass_64/classes.json
+  image_size: 64
+  num_classes: 3
+
+diffusion:
+  num_timesteps: 1000
+  beta_start: 0.0001
+  beta_end: 0.02
+
+model:
+  in_channels: 3
+  out_channels: 3
+  base_channels: 64
+  time_embedding_dim: 128
+  time_dim: 256
+
+training:
+  batch_size: 12
+  learning_rate: 0.0002
+  condition_dropout: 0.10
+  epochs: 100
+  seed: 42
+  num_workers: 0
+
+overfit_minibatch:
+  images_per_class: 2
+  steps: 1500
+  log_interval: 50
