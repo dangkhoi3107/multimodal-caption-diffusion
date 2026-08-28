@@ -1,0 +1,18 @@
+raw_root: data/raw/products/lifebuoy_handwash_vitamin_protection_400g/coco
+output_root: data/processed/products_64
+
+splits:
+  - train
+  - valid
+  - test
+
+annotation_filename: _annotations.coco.json
+
+ignored_category_ids:
+  - 0
+
+image_size: 64
+margin_ratio: 0.10
+background_mode: white
+
+seed: 42

@@ -173,7 +173,7 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 ### Master progress
 
 - [x] F0 — Math and toy distributions.
-- [ ] Phase 0 — Product data preparation.
+- [x] Phase 0 — Product data preparation.
 - [ ] Phase 1 — Unconditional pixel DDPM.
 - [ ] A1 — Improved DDPM/EDM design experiments.
 - [ ] A2 — DDIM and optional fast solvers.
@@ -425,46 +425,46 @@ Luồng:
 
 ### A. COCO parser
 
-- [ ] Tạo `phase0_data.yaml` với path tương đối.
-- [ ] Tạo dataclass/type cho image, annotation và category.
-- [ ] Implement `load_coco`.
-- [ ] Implement `build_coco_indexes`.
-- [ ] Báo lỗi rõ khi ảnh hoặc annotation thiếu field.
-- [ ] Test category mapping và instance count trên fixture nhỏ.
+- [x] Tạo `phase0_data.yaml` với path tương đối.
+- [x] Tạo dataclass/type cho image, annotation và category.
+- [x] Implement `load_coco`.
+- [x] Implement `build_coco_indexes`.
+- [x] Báo lỗi rõ khi ảnh hoặc annotation thiếu field.
+- [x] Test category mapping và instance count trên fixture nhỏ.
 
 ### B. Polygon và crop
 
-- [ ] Implement polygon → binary mask.
-- [ ] Test polygon đơn giản bằng hình chữ nhật biết trước diện tích.
-- [ ] Hỗ trợ một annotation có nhiều polygon.
-- [ ] Implement bounds convention và test off-by-one.
-- [ ] Implement margin và clip vào image bounds.
-- [ ] Implement masked composite trên nền trắng.
-- [ ] Implement resize giữ aspect ratio.
-- [ ] Implement padding vuông đối xứng.
-- [ ] Xác nhận output `[64, 64, 3]`, RGB, `uint8`.
+- [x] Implement polygon → binary mask.
+- [x] Test polygon đơn giản bằng hình chữ nhật biết trước diện tích.
+- [x] Hỗ trợ một annotation có nhiều polygon.
+- [x] Implement bounds convention và test off-by-one.
+- [x] Implement margin và clip vào image bounds.
+- [x] Implement masked composite trên nền trắng.
+- [x] Implement resize giữ aspect ratio.
+- [x] Implement padding vuông đối xứng.
+- [x] Xác nhận output `[64, 64, 3]`, RGB, `uint8`.
 
 ### C. Dataset generation
 
-- [ ] Tạo tên file output deterministic theo split/image/annotation ID.
-- [ ] Ghi `train.jsonl`, `valid.jsonl`, `test.jsonl`.
-- [ ] Metadata có `source_image`, `image_id`, `annotation_id`, `class_id`, `class_name`.
-- [ ] Metadata có thông tin bounds và preprocessing config/version.
-- [ ] Giữ nguyên split gốc.
-- [ ] Ghi summary: số processed, skipped và lỗi theo split/class.
-- [ ] Không ghi bất kỳ output nào vào `data/raw/`.
+- [x] Tạo tên file output deterministic theo split/image/annotation ID.
+- [x] Ghi `train.jsonl`, `valid.jsonl`, `test.jsonl`.
+- [x] Metadata có `source_image`, `image_id`, `annotation_id`, `class_id`, `class_name`.
+- [x] Metadata có thông tin bounds và preprocessing config/version.
+- [x] Giữ nguyên split gốc.
+- [x] Ghi summary: số processed, skipped và lỗi theo split/class.
+- [x] Không ghi bất kỳ output nào vào `data/raw/`.
 
 ### D. QA
 
-- [ ] Sinh contact sheet tối thiểu 32 crop train.
-- [ ] Sinh contact sheet cho toàn bộ valid/test nếu số lượng nhỏ.
-- [ ] Kiểm tra thủ công object không bị cắt nắp/cạnh quan trọng.
-- [ ] Kiểm tra không kéo méo aspect ratio.
-- [ ] Kiểm tra mask không giữ vùng background lớn bất thường.
-- [ ] Tìm duplicate/gần duplicate và ghi nhận, chưa tự ý xóa.
-- [ ] Load một DataLoader batch.
-- [ ] Báo cáo batch shape `[B, 3, 64, 64]`, dtype và min/max.
-- [ ] Test deterministic: chạy hai lần cùng seed/config cho cùng checksum metadata.
+- [x] Sinh contact sheet tối thiểu 32 crop train.
+- [x] Sinh contact sheet cho toàn bộ valid/test nếu số lượng nhỏ.
+- [x] Kiểm tra thủ công object không bị cắt nắp/cạnh quan trọng.
+- [x] Kiểm tra không kéo méo aspect ratio.
+- [x] Kiểm tra mask không giữ vùng background lớn bất thường.
+- [x] Tìm duplicate/gần duplicate và ghi nhận, chưa tự ý xóa.
+- [x] Load một DataLoader batch.
+- [x] Báo cáo batch shape `[B, 3, 64, 64]`, dtype và min/max.
+- [x] Test deterministic: chạy hai lần cùng seed/config cho cùng checksum metadata.
 
 ## 0.5 Output bắt buộc
 
@@ -488,12 +488,12 @@ outputs/phase0_data/
 
 ## 0.6 Definition of Done
 
-- [ ] Toàn bộ unit test Phase 0 pass.
-- [ ] Không có output crop sai shape/dtype/range.
-- [ ] DataLoader trả `[B, 3, 64, 64]` trong `[-1, 1]`.
-- [ ] Contact sheet đã được người dùng hoặc dev kiểm tra.
-- [ ] Tất cả crop trace ngược được về raw annotation.
-- [ ] Dataset processed sinh lại được từ một command và config.
+- [x] Toàn bộ unit test Phase 0 pass.
+- [x] Không có output crop sai shape/dtype/range.
+- [x] DataLoader trả `[B, 3, 64, 64]` trong `[-1, 1]`.
+- [x] Contact sheet đã được người dùng hoặc dev kiểm tra.
+- [x] Tất cả crop trace ngược được về raw annotation.
+- [x] Dataset processed sinh lại được từ một command và config.
 
 ---
 
