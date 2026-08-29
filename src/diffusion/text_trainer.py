@@ -256,3 +256,193 @@ def text_training_step(
             / batch_size
         ),
     }
+
+
+def train_text_epoch(
+    model: nn.Module,
+    scheduler: DDPMScheduler,
+    dataloader,
+    optimizer: torch.optim.Optimizer,
+    device: torch.device,
+    prompt_dropout: float,
+    bos_id: int,
+    eos_id: int,
+    pad_id: int,
+    generator: torch.Generator | None = None,
+) -> dict[str, float | int]:
+    model.train()
+
+    total_loss = 0.0
+    total_samples = 0
+    total_dropped = 0
+
+    for batch in dataloader:
+        x_0 = batch[
+            "image"
+        ].to(
+            device=device,
+            dtype=torch.float32,
+        )
+
+        token_ids = batch[
+            "token_ids"
+        ].to(
+            device=device,
+            dtype=torch.long,
+        )
+
+        padding_mask = batch[
+            "padding_mask"
+        ].to(
+            device=device,
+            dtype=torch.bool,
+        )
+
+        metrics = text_training_step(
+            model=model,
+            scheduler=scheduler,
+            x_0=x_0,
+            token_ids=token_ids,
+            padding_mask=padding_mask,
+            optimizer=optimizer,
+            prompt_dropout=prompt_dropout,
+            bos_id=bos_id,
+            eos_id=eos_id,
+            pad_id=pad_id,
+            generator=generator,
+        )
+
+        batch_size = x_0.shape[0]
+
+        total_loss += (
+            metrics["loss"]
+            * batch_size
+        )
+
+        total_samples += batch_size
+
+        total_dropped += int(
+            metrics[
+                "dropped_count"
+            ]
+        )
+
+    if total_samples == 0:
+        raise ValueError(
+            "training dataloader is empty"
+        )
+
+    return {
+        "loss": (
+            total_loss
+            / total_samples
+        ),
+        "num_samples": (
+            total_samples
+        ),
+        "dropped_fraction": (
+            total_dropped
+            / total_samples
+        ),
+    }
+
+
+@torch.no_grad()
+def validate_text_epoch(
+    model: nn.Module,
+    scheduler: DDPMScheduler,
+    dataloader,
+    device: torch.device,
+    generator: torch.Generator | None = None,
+) -> dict[str, float | int]:
+    """Validation uses full real prompts.
+
+    No prompt dropout is applied.
+    """
+
+    model.eval()
+
+    total_loss = 0.0
+    total_samples = 0
+
+    for batch in dataloader:
+        x_0 = batch[
+            "image"
+        ].to(
+            device=device,
+            dtype=torch.float32,
+        )
+
+        token_ids = batch[
+            "token_ids"
+        ].to(
+            device=device,
+            dtype=torch.long,
+        )
+
+        padding_mask = batch[
+            "padding_mask"
+        ].to(
+            device=device,
+            dtype=torch.bool,
+        )
+
+        batch_size = x_0.shape[0]
+
+        timesteps = torch.randint(
+            low=0,
+            high=scheduler.num_timesteps,
+            size=(batch_size,),
+            device=device,
+            dtype=torch.long,
+            generator=generator,
+        )
+
+        noise = torch.randn(
+            x_0.shape,
+            device=device,
+            dtype=x_0.dtype,
+            generator=generator,
+        )
+
+        loss = compute_text_diffusion_loss(
+            model=model,
+            scheduler=scheduler,
+            x_0=x_0,
+            timesteps=timesteps,
+            noise=noise,
+            token_ids=token_ids,
+            padding_mask=padding_mask,
+        )
+
+        if not torch.isfinite(
+            loss
+        ):
+            raise FloatingPointError(
+                "validation loss is "
+                "NaN or Inf"
+            )
+
+        total_loss += (
+            float(
+                loss.item()
+            )
+            * batch_size
+        )
+
+        total_samples += batch_size
+
+    if total_samples == 0:
+        raise ValueError(
+            "validation dataloader is empty"
+        )
+
+    return {
+        "loss": (
+            total_loss
+            / total_samples
+        ),
+        "num_samples": (
+            total_samples
+        ),
+    }
