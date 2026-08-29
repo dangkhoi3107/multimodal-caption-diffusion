@@ -1,0 +1,92 @@
+{
+  "caption_schema_version": "phase3_controlled_v1",
+  "splits": {
+    "train": {
+      "num_records": 456,
+      "class_counts": {
+        "0": 156,
+        "1": 203,
+        "2": 97
+      },
+      "num_unique_captions": 9,
+      "min_tokens": 5,
+      "max_tokens": 8,
+      "mean_tokens": 6.353070175438597,
+      "temporary_vocabulary": [
+        "a",
+        "blue",
+        "body",
+        "bottle",
+        "deodorant",
+        "dove",
+        "handwash",
+        "in",
+        "lifebuoy",
+        "of",
+        "pouch",
+        "red",
+        "serum",
+        "tube",
+        "white"
+      ]
+    },
+    "valid": {
+      "num_records": 147,
+      "class_counts": {
+        "0": 54,
+        "1": 62,
+        "2": 31
+      },
+      "num_unique_captions": 9,
+      "min_tokens": 5,
+      "max_tokens": 8,
+      "mean_tokens": 6.387755102040816,
+      "temporary_vocabulary": [
+        "a",
+        "blue",
+        "body",
+        "bottle",
+        "deodorant",
+        "dove",
+        "handwash",
+        "in",
+        "lifebuoy",
+        "of",
+        "pouch",
+        "red",
+        "serum",
+        "tube",
+        "white"
+      ]
+    },
+    "test": {
+      "num_records": 80,
+      "class_counts": {
+        "0": 28,
+        "1": 36,
+        "2": 16
+      },
+      "num_unique_captions": 9,
+      "min_tokens": 5,
+      "max_tokens": 8,
+      "mean_tokens": 6.375,
+      "temporary_vocabulary": [
+        "a",
+        "blue",
+        "body",
+        "bottle",
+        "deodorant",
+        "dove",
+        "handwash",
+        "in",
+        "lifebuoy",
+        "of",
+        "pouch",
+        "red",
+        "serum",
+        "tube",
+        "white"
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "checkpoint": "outputs\\phase1_overfit_one_image\\model.pt",
+  "sample_seed": 4242,
+  "sample_shape": [
+    1,
+    3,
+    64,
+    64
+  ],
+  "sample_min": -0.9862241148948669,
+  "sample_max": 0.8108511567115784,
+  "sample_mean": -0.04610079526901245,
+  "sample_std": 0.25738683342933655,
+  "finite": true
+}

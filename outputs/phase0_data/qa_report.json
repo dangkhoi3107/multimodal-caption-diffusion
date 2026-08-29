@@ -1,0 +1,59 @@
+{
+  "splits": {
+    "train": {
+      "metadata_records": 97,
+      "invalid_images": [],
+      "invalid_count": 0,
+      "uint8_min": 0,
+      "uint8_max": 255,
+      "class_ids": [
+        0
+      ],
+      "exact_duplicate_groups": []
+    },
+    "valid": {
+      "metadata_records": 31,
+      "invalid_images": [],
+      "invalid_count": 0,
+      "uint8_min": 0,
+      "uint8_max": 255,
+      "class_ids": [
+        0
+      ],
+      "exact_duplicate_groups": []
+    },
+    "test": {
+      "metadata_records": 16,
+      "invalid_images": [],
+      "invalid_count": 0,
+      "uint8_min": 0,
+      "uint8_max": 255,
+      "class_ids": [
+        0
+      ],
+      "exact_duplicate_groups": []
+    }
+  },
+  "dataloader": {
+    "dataset_size": 97,
+    "batch_shape": [
+      8,
+      3,
+      64,
+      64
+    ],
+    "dtype": "torch.float32",
+    "min": -1.0,
+    "max": 1.0,
+    "class_ids": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

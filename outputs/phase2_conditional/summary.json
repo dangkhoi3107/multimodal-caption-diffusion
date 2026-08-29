@@ -1,0 +1,11 @@
+{
+  "epochs": 100,
+  "train_samples": 456,
+  "valid_samples": 147,
+  "num_classes": 3,
+  "null_class_id": 3,
+  "condition_dropout": 0.1,
+  "best_valid_loss": 0.014429356598732422,
+  "final_train_loss": 0.013616463573845593,
+  "final_valid_loss": 0.014681346258338617
+}

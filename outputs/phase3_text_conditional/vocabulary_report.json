@@ -1,0 +1,43 @@
+{
+  "vocabulary_size": 19,
+  "min_frequency": 1,
+  "max_length": 10,
+  "special_tokens": {
+    "<PAD>": 0,
+    "<BOS>": 1,
+    "<EOS>": 2,
+    "<UNK>": 3
+  },
+  "splits": {
+    "train": {
+      "num_captions": 456,
+      "min_content_tokens": 5,
+      "max_content_tokens": 8,
+      "mean_content_tokens": 6.353070175438597,
+      "max_encoded_length": 10,
+      "too_long_count": 0,
+      "unknown_token_count": 0,
+      "unknown_tokens": {}
+    },
+    "valid": {
+      "num_captions": 147,
+      "min_content_tokens": 5,
+      "max_content_tokens": 8,
+      "mean_content_tokens": 6.387755102040816,
+      "max_encoded_length": 10,
+      "too_long_count": 0,
+      "unknown_token_count": 0,
+      "unknown_tokens": {}
+    },
+    "test": {
+      "num_captions": 80,
+      "min_content_tokens": 5,
+      "max_content_tokens": 8,
+      "mean_content_tokens": 6.375,
+      "max_encoded_length": 10,
+      "too_long_count": 0,
+      "unknown_token_count": 0,
+      "unknown_tokens": {}
+    }
+  }
+}

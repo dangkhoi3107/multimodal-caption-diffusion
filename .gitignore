@@ -20,6 +20,7 @@ checkpoints/
 *.pth
 *.ckpt
 *.safetensors
+*.tar.gz
 
 # Outputs
 outputs/**/*.png

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 from collections import Counter
 from pathlib import Path
@@ -29,16 +30,37 @@ from src.text.vocabulary import (
 )
 
 
-CHECKPOINT_PATH = Path(
-    "outputs/phase4_captioning/best.pt"
+DEFAULT_CHECKPOINT_PATH = Path(
+    "checkpoints/image_captioning.pt"
 )
 
-OUTPUT_ROOT = Path(
+DEFAULT_OUTPUT_ROOT = Path(
     "outputs/phase5_caption_decoding"
 )
 
 BEAM_SIZE = 3
 LENGTH_PENALTY = 0.6
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse reproducible Phase 5 caption-decoding evaluation paths."""
+
+    parser = argparse.ArgumentParser(
+        description="Compare greedy and beam caption decoding on the test split."
+    )
+    parser.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=DEFAULT_CHECKPOINT_PATH,
+        help="Phase 4 checkpoint path.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=DEFAULT_OUTPUT_ROOT,
+        help="Directory for JSON evaluation artifacts.",
+    )
+    return parser.parse_args()
 
 
 def restore_vocabulary(
@@ -513,6 +535,10 @@ def evaluate_method(
 
 
 def main():
+    args = parse_args()
+    checkpoint_path = args.checkpoint.expanduser().resolve()
+    output_root = args.output_dir.expanduser().resolve()
+
     device = torch.device(
         "cuda"
         if torch.cuda.is_available()
@@ -524,15 +550,15 @@ def main():
         device,
     )
 
-    if not CHECKPOINT_PATH.exists():
+    if not checkpoint_path.exists():
         raise FileNotFoundError(
-            f"Checkpoint not found: {CHECKPOINT_PATH}"
+            f"Checkpoint not found: {checkpoint_path}"
         )
 
     checkpoint = torch.load(
-        CHECKPOINT_PATH,
+        checkpoint_path,
         map_location=device,
-        weights_only=False,
+        weights_only=True,
     )
 
     config = checkpoint[
@@ -675,13 +701,13 @@ def main():
         ),
     }
 
-    OUTPUT_ROOT.mkdir(
+    output_root.mkdir(
         parents=True,
         exist_ok=True,
     )
 
     (
-        OUTPUT_ROOT
+        output_root
         / "comparison.json"
     ).write_text(
         json.dumps(
@@ -693,7 +719,7 @@ def main():
     )
 
     (
-        OUTPUT_ROOT
+        output_root
         / "greedy_predictions.json"
     ).write_text(
         json.dumps(
@@ -705,7 +731,7 @@ def main():
     )
 
     (
-        OUTPUT_ROOT
+        output_root
         / "beam_predictions.json"
     ).write_text(
         json.dumps(
@@ -717,7 +743,7 @@ def main():
     )
 
     (
-        OUTPUT_ROOT
+        output_root
         / "qualitative_examples.json"
     ).write_text(
         json.dumps(
@@ -816,7 +842,7 @@ def main():
     print()
     print(
         "Saved:",
-        OUTPUT_ROOT,
+        output_root,
     )
 
 

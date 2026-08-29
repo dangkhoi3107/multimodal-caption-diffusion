@@ -188,7 +188,7 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 - [ ] A9 — Consistency models.
 - [ ] A10 — Flow Matching/Rectified Flow.
 - [ ] A11 — SD3/FLUX architecture study.
-- [ ] Phase 4 — Image captioning.
+- [x] Phase 4 — Image captioning. **Functional scratch baseline closed under an explicit scope exception: product captions thay Flickr8k; tiny-overfit/multi-reference/attention visualization vẫn deferred; beam decoding và systematic caption failure analysis đã được bổ sung ở Phase 5.**
 - [ ] Phase 5 — Evaluation, ablation and report.
 
 ## 2. Trạng thái repository hiện tại
@@ -212,7 +212,15 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 - [x] Full text-CFG fixed-noise evaluation pass: CFG `0` cho pairwise MAD đúng `0`; CFG `1→2→3` làm prompt differences tăng có hệ thống.
 - [x] Same-noise color prompt-swap ở CFG `2.0` tạo measurable changes: serum white↔red `0.087546`, deodorant blue↔white `0.067669`, Lifebuoy red↔blue `0.139538` mean absolute difference.
 - [x] Phase 3 limitation đã được ghi rõ: color/package/brand vẫn tương quan mạnh với SKU trong train data, nên kết quả mới chứng minh **partial text sensitivity**, không chứng minh full compositional disentanglement.
-- [ ] Chưa có model captioning.
+- [x] Phase 4 đã có `CaptionDataset` teacher-forcing contract, scratch CNN image encoder, causal Transformer decoder, visual cross-attention, end-to-end caption model, training loop, greedy autoregressive generation và BLEU metrics.
+- [x] Phase 4 dùng cùng product split `456` train / `147` valid / `80` test, image size `64×64`, train-only vocabulary `19` tokens; model có `4,386,624` parameters.
+- [x] Phase 4 full scratch training trên Tesla T4 hoàn thành `100` epochs; checkpoint tốt nhất được chọn **chỉ bằng validation loss** tại epoch `17`, best valid loss `0.1567438867`.
+- [x] Phase 4 held-out autoregressive test trên `80` ảnh đạt Exact Match `0.3000`, BLEU-1 `0.8687`, BLEU-2 `0.7397`, BLEU-3 `0.5966`, BLEU-4 `0.4985`.
+- [x] Phase 4 scope exception đã được ghi rõ: tiny overfit bị người dùng chủ động bỏ qua để rút thời gian; Flickr8k, multi-reference BLEU và attention visualization vẫn deferred. Beam search + caption failure analysis đã được thực hiện ở Phase 5.
+- [x] Phase 5 portfolio integration có Streamlit playground hai chiều; inference adapter restore đúng checkpoint Phase 3/4, letterbox ảnh upload và chỉ gọi implementation trong `src/`.
+- [x] Phase 5 caption decoding ablation trên `80` test samples: greedy BLEU-4 `0.4906`, beam-size `3` BLEU-4 `0.5152`; beam tăng BLEU-4 `+0.0246` nhưng exact match giảm `-0.0125`.
+- [x] Phase 5 visual-conditioning ablation: real/zero/class-mismatched visual tokens cho BLEU-4 `0.4906/0.2385/0.0000` và controlled class accuracy `1.00/0.35/0.00`.
+- [x] Full regression suite sau public-deploy integration: `208 passed` trong Conda environment với pytest temp đặt trong workspace.
 - [x] Checkpoint/model weights và experiment artifacts được lưu local/Kaggle, không commit model weights.
 
 ## 3. Cấu trúc repository mục tiêu
@@ -1691,176 +1699,321 @@ Baseline dùng consistency distillation từ teacher do project train. Standalon
 
 ## 4.1 Mục tiêu
 
-Xây model độc lập:
+Xây model độc lập hoàn toàn từ random initialization:
 
 ```text
-image -> CNN visual tokens -> Transformer decoder -> caption
+image -> CNN spatial visual tokens -> causal Transformer decoder -> caption
 ```
 
-Không dùng pretrained CNN, pretrained tokenizer hoặc `nn.Transformer*`.
+Không dùng pretrained CNN, pretrained tokenizer, pretrained language model hoặc `nn.Transformer*` / `nn.MultiheadAttention` cho experiment chính.
 
-## 4.2 Chuẩn bị dataset
+**Phase 4 status:** COMPLETE — **functional scratch baseline** đã đóng bằng full end-to-end training và held-out autoregressive evaluation.
 
-- [ ] Chọn Flickr8k làm dataset baseline.
-- [ ] Ghi nguồn/license/download instruction.
-- [ ] Đặt raw data dưới `data/raw/captioning/flickr8k/`.
-- [ ] Xác nhận official train/valid/test split hoặc tạo split không leakage.
-- [ ] Thống kê ảnh, caption/ảnh, caption length.
-- [ ] Build vocabulary chỉ từ train captions.
-- [ ] Chốt image size baseline: `128×128` trước.
+Scope exception được người dùng chấp nhận để rút ngắn thời gian:
 
-## 4.3 File và idea dự kiến
+- Dataset baseline thực tế dùng product images + controlled captions đã chuẩn hóa từ Phase 3 thay vì Flickr8k.
+- Tiny-overfit gate được chủ động bỏ qua; không được dùng Phase 4 để claim tiny-overfit evidence.
+- Multi-reference BLEU và attention visualization chưa thuộc baseline đã đóng. Beam search và systematic caption failure analysis đã được bổ sung, kiểm chứng ở Phase 5.
+
+## 4.2 Dataset baseline thực tế
+
+- [x] Reuse product image/caption records từ Phase 3 thay cho Flickr8k baseline ban đầu.
+- [x] Giữ split không leakage đã chốt: `456` train / `147` valid / `80` test.
+- [x] Controlled captions dùng brand/product/color/package; caption content length quan sát `5–8` tokens trong schema hiện tại.
+- [x] Reuse word-level tokenizer primitives từ Phase 3.
+- [x] Build/reuse vocabulary **chỉ từ train captions**: `19` tokens, `PAD=0`, `BOS=1`, `EOS=2`, `UNK=3`.
+- [x] Decoder sequence length baseline: `10` teacher-forcing positions; dataset encode nội bộ `L+1` rồi shift.
+- [x] Image size baseline thực tế: `64×64`.
+- [x] Image tensor normalize về `[-1,1]` theo `ProductImageDataset` contract.
+- [ ] Flickr8k baseline, license/download instruction và official split — **DEFERRED; không được claim đã làm**.
+
+## 4.3 File và implementation thực tế
 
 ### `configs/phase4_captioning.yaml`
 
-Chứa image size, vocabulary parameters, max length, CNN channels, `d_model`, heads, decoder layers, dropout, optimizer và decoding settings.
+Baseline config:
+
+```text
+image_size = 64
+sequence_length = 10
+model_dim = 256
+CNN base_channels = 64
+decoder heads = 4
+decoder layers = 3
+feedforward_dim = 512
+dropout = 0.10
+batch_size = 16
+learning_rate = 3e-4
+epochs = 100
+```
 
 ### `src/data/caption_dataset.py`
 
-**Idea:** map image/caption pairs thành image tensor + shifted token sequence; collate padding theo batch.
+Teacher-forcing sample contract:
 
-- `CaptionDataset.__getitem__` trả image và một caption token sequence.
-- `caption_collate_fn` trả `[B,3,H,W]`, `[B,L]`, padding mask.
+```text
+image          FloatTensor[3,64,64]
+caption        str
+input_ids      LongTensor[L]
+target_ids     LongTensor[L]
+padding_mask   BoolTensor[L]
+target_mask    BoolTensor[L]
+```
 
-### `src/captioning/cnn_encoder.py`
+Shift:
 
-**Idea:** CNN random-init giữ spatial feature map, không global pool.
+```text
+full_ids   = [BOS, w1, w2, ..., EOS, PAD, ...]
+input_ids  = full_ids[:-1]
+target_ids = full_ids[1:]
+```
 
-- `CNNEncoder.forward(images) -> visual_tokens`.
-- Ví dụ output `[B, H_v*W_v, D]`.
-- Thêm/project visual positional encoding.
+### `src/captioning/image_encoder.py`
+
+Scratch CNN random-init:
+
+```text
+[B,3,64,64]
+-> CNN downsample
+-> [B,256,8,8]
+-> flatten spatial
+-> [B,64,256]
+-> learnable visual positional embedding + LayerNorm
+```
+
+Smoke evidence:
+
+```text
+Input image: (4, 3, 64, 64)
+Image tokens: (4, 64, 256)
+Grid size: 8
+Num image tokens: 64
+Parameters: 2,004,032
+Phase 4 image encoder smoke test: PASS
+```
 
 ### `src/captioning/decoder.py`
 
-**Idea:** decoder stack tự triển khai.
+Scratch autoregressive Transformer decoder:
 
-Mỗi block:
+1. Token embedding + sinusoidal position encoding.
+2. Causal self-attention với padding-aware mask.
+3. Visual cross-attention: text query, image-token key/value.
+4. Feed-forward + residual + LayerNorm.
+5. Stack `3` layers ở full config.
+6. Vocabulary projection `[B,L,256] -> [B,L,19]`.
 
-1. Masked multi-head self-attention.
-2. Add + LayerNorm.
-3. Cross-attention với visual tokens.
-4. Add + LayerNorm.
-5. Feed-forward.
-6. Add + LayerNorm.
+Relevant causal test đã chứng minh thay future tokens không làm thay prefix logits.
 
 ### `src/captioning/model.py`
 
-**Idea:** compose encoder + decoder + vocabulary head; không chứa training loop.
+Compose:
 
-- Input teacher forcing `[B,L]`.
-- Output logits `[B,L,V]`.
+```text
+images
+-> ImageEncoder
+-> visual tokens
+-> CaptionDecoder(input_ids, padding_mask, visual_tokens)
+-> logits [B,L,V]
+```
 
-### `src/captioning/decoding.py`
+### `src/captioning/training.py`
 
-**Idea:** inference autoregressive tách khỏi model forward.
+- Next-token cross-entropy ignore PAD.
+- Gradient clipping.
+- Teacher-forced token accuracy.
+- Train/validation epoch loops.
 
-- `greedy_decode`.
-- `beam_search_decode` sau khi greedy đúng.
+### `src/captioning/generation.py`
 
-### `src/captioning/trainer.py`
+- Greedy autoregressive generation bắt đầu từ `BOS`.
+- Encode image một lần rồi reuse visual tokens.
+- Sinh từng token từ logits cuối sequence.
+- Stop khi mọi sample phát `EOS` hoặc đạt `max_length`.
 
-- Shift-right input/target.
-- Cross-entropy ignore PAD.
-- Train/validation metrics.
+### `src/captioning/metrics.py`
 
-### CLI/tests
+Scratch single-reference corpus BLEU implementation:
 
-- `scripts/prepare_captioning.py`.
-- `scripts/train_phase4.py`.
-- `scripts/caption_image.py`.
-- `tests/test_caption_dataset.py`.
-- `tests/test_caption_masks.py`.
-- `tests/test_caption_model.py`.
-- `tests/test_decoding.py`.
+- clipped n-gram precision;
+- brevity penalty;
+- BLEU-1 → BLEU-4.
+
+### CLI
+
+- `scripts/train_phase4_captioning.py` — full train + best checkpoint theo validation loss.
+- `scripts/evaluate_phase4_captioning.py` — held-out greedy generation + Exact Match + BLEU + predictions JSON.
+- `scripts/smoke_phase4_dataset.py` — real-data dataset smoke.
+- `scripts/smoke_phase4_image_encoder.py` — image encoder smoke.
+- `scripts/smoke_phase4_decoder.py` — encoder/decoder shape + attention smoke.
 
 ## 4.4 Checklist triển khai
 
 ### A. Data/text
 
-- [ ] Parse Flickr8k captions.
-- [ ] Validate every caption maps to an image.
-- [ ] Reuse word-level tokenizer primitives từ Phase 3 khi phù hợp.
-- [ ] Build vocabulary train-only.
-- [ ] Implement caption length policy.
-- [ ] Implement image normalization từ thống kê đã chọn/document.
-- [ ] Implement collate/padding mask.
-- [ ] Inspect one batch và báo shape/range.
+- [x] Parse/reuse controlled product captions từ Phase 3 metadata.
+- [x] Validate caption record đi cùng processed image record qua dataset load/smoke.
+- [x] Reuse word-level tokenizer primitives từ Phase 3.
+- [x] Build/reuse vocabulary train-only.
+- [x] Implement caption length policy với `sequence_length=10` và `L+1` internal encode.
+- [x] Reuse image normalization `[-1,1]` đã document.
+- [x] Implement padding mask + target mask.
+- [x] Inspect real DataLoader batch; dataset smoke pass.
+- [ ] Parse Flickr8k captions — **DEFERRED**.
 
 ### B. CNN encoder
 
-- [ ] Thiết kế resolution/channel table.
-- [ ] Implement conv blocks random-init.
-- [ ] Giữ spatial tokens.
-- [ ] Project channels về `d_model`.
-- [ ] Thêm visual positional encoding.
-- [ ] Shape test nhiều batch size.
-- [ ] Gradient test từ caption loss về CNN đầu tiên.
+- [x] Chốt resolution/channel path `64 -> 32 -> 16 -> 8`.
+- [x] Implement conv/residual blocks random-init.
+- [x] Giữ spatial tokens, không global pool.
+- [x] Project channel về `d_model=256`.
+- [x] Thêm learnable visual positional embedding.
+- [x] Shape tests nhiều batch context + real-data smoke pass.
+- [x] Gradient tới CNN được kiểm chứng qua backward tests và full end-to-end caption training.
 
 ### C. Transformer decoder
 
-- [ ] Reuse/self-implement attention primitives theo rule.
-- [ ] Implement causal mask `[L,L]`.
-- [ ] Test token position không attend future positions.
-- [ ] Implement token embedding và text positional encoding.
-- [ ] Implement decoder self-attention.
-- [ ] Implement cross-attention với visual tokens.
-- [ ] Implement feed-forward, residual và LayerNorm.
-- [ ] Stack N decoder layers.
-- [ ] Implement vocabulary projection `[B,L,D] -> [B,L,V]`.
-- [ ] Test logits shape và finite gradient.
+- [x] Reuse custom `MultiHeadAttention` từ Phase 3; không dùng `nn.MultiheadAttention`.
+- [x] Implement causal mask `[B,1,L,L]` kết hợp non-PAD keys.
+- [x] Test future-token leakage: future token changes không đổi prefix logits.
+- [x] Implement token embedding và sinusoidal text positional encoding.
+- [x] Implement decoder causal self-attention.
+- [x] Implement visual cross-attention với `64` image tokens.
+- [x] Implement feed-forward, residual và LayerNorm.
+- [x] Stack N decoder layers; full baseline dùng `3` layers.
+- [x] Implement vocabulary projection `[B,L,D] -> [B,L,V]`.
+- [x] Logits shape/finite gradient tests pass.
 
 ### D. Training
 
-- [ ] Input: `<BOS> token_1 ... token_n`.
-- [ ] Target: `token_1 ... token_n <EOS>`.
-- [ ] Cross-entropy ignore PAD.
-- [ ] Overfit 1 image-caption pair.
-- [ ] Overfit 10 images/multiple captions.
-- [ ] Kiểm tra model không chỉ sinh caption phổ biến nhất.
-- [ ] Train Flickr8k full train split.
-- [ ] Validation bằng teacher-forcing loss/perplexity.
-- [ ] Checkpoint/resume smoke test.
+- [x] Input teacher forcing: `<BOS> token_1 ... token_n`.
+- [x] Target: `token_1 ... token_n <EOS>`.
+- [x] Cross-entropy ignore PAD.
+- [ ] Overfit 1 image-caption pair — **INTENTIONALLY SKIPPED by user**.
+- [ ] Overfit 10 images/multiple captions — **INTENTIONALLY SKIPPED by user**.
+- [ ] Systematic check model không chỉ sinh caption phổ biến nhất — chưa có protocol riêng; inspect predictions mới chỉ là qualitative evidence.
+- [x] Train full product train split `456` samples trong `100` epochs trên Tesla T4.
+- [x] Validation bằng teacher-forcing loss/token accuracy trên `147` samples.
+- [x] Best checkpoint selection dùng validation loss, không dùng test: epoch `17`, valid loss `0.1567438867`.
+- [ ] Checkpoint **resume** smoke test — checkpoint save đã hoạt động nhưng resume chưa được kiểm chứng.
+- [ ] Train Flickr8k full train split — **DEFERRED / out of current baseline**.
+
+Full training evidence:
+
+```text
+Device: cuda
+GPU: Tesla T4
+Vocabulary size: 19
+Train samples: 456
+Valid samples: 147
+Parameters: 4,386,624
+
+Best epoch: 17
+Best valid loss: 0.15674388672218842
+```
+
+Observed training behavior:
+
+```text
+epoch 17: train_loss=0.153821, valid_loss=0.156744
+epoch 50: train_loss=0.064362, valid_loss=0.288403
+epoch100: train_loss=0.007382, valid_loss=0.644358
+```
+
+Kết luận: sau khoảng epoch `17` model overfit rõ; evaluation bắt buộc dùng `best.pt` tại epoch `17`, không dùng epoch `100`.
 
 ### E. Decoding
 
-- [ ] Implement greedy decode bắt đầu BOS.
-- [ ] Stop từng sample tại EOS hoặc max length.
-- [ ] Không phát PAD/BOS vào câu output cuối.
-- [ ] Deterministic greedy test bằng mock logits.
-- [ ] Implement beam search sau greedy.
-- [ ] Length penalty policy rõ ràng.
-- [ ] Test beam bookkeeping và EOS termination.
+- [x] Implement greedy decode bắt đầu `BOS`.
+- [x] Stop tại `EOS` hoặc `max_length`.
+- [x] Decode final sentence bỏ special tokens theo tokenizer contract.
+- [x] Held-out evaluation chạy autoregressive generation thực sự; không teacher forcing.
+- [ ] Deterministic greedy test bằng mock logits — chưa có fixture riêng.
+- [x] Implement beam search phục vụ controlled Phase 5 decoding ablation.
+- [x] Length penalty policy: cumulative log probability chia `length ** 0.6` trong baseline beam-size `3`.
+- [x] Beam bookkeeping/EOS/determinism tests pass bằng known-path dummy decoder.
 
 ### F. Evaluation
 
-- [ ] Implement BLEU-1 đến BLEU-4 hoặc xác minh implementation bằng fixture biết trước.
-- [ ] Tính metric trên test split, dùng nhiều reference captions.
-- [ ] Lưu predictions JSON.
-- [ ] Lưu qualitative samples: tốt, trung bình, sai.
-- [ ] Phân tích repetition, hallucination và generic caption.
-- [ ] Optional: visualize cross-attention theo generated token.
+- [x] Implement scratch corpus BLEU-1 → BLEU-4.
+- [x] Chọn checkpoint bằng validation loss trước khi xem test result.
+- [x] Tính metric trên held-out test split `80` samples.
+- [x] Lưu predictions cùng reference/prediction/exact-match trong evaluation `report.json`.
+- [x] Greedy autoregressive evaluation đạt non-trivial held-out metrics.
+- [ ] Cross-check BLEU bằng fixture biết trước/reference implementation — chưa được kiểm chứng riêng.
+- [ ] Multi-reference BLEU — current metadata evaluation dùng **single reference per record**.
+- [ ] Lưu curated qualitative samples: tốt / trung bình / sai — chuyển Phase 5.
+- [x] Systematic caption failure analysis lưu missing/extra/repeated tokens và quality bucket cho toàn bộ `80` test records ở `outputs/phase5_caption_decoding/`.
+- [ ] Visualize cross-attention theo generated token — optional, chưa làm.
 
-## 4.5 Output bắt buộc
+Held-out evidence:
 
 ```text
-outputs/phase4_captioning/<run_id>/
-├── vocabulary.json
-├── metrics.json
-├── predictions.json
-├── loss_curve.png
-├── qualitative_samples/
-└── attention_maps/
+Checkpoint epoch: 17
+Test samples: 80
+Exact Match: 0.3000
+BLEU-1: 0.8687
+BLEU-2: 0.7397
+BLEU-3: 0.5966
+BLEU-4: 0.4985
 ```
+
+Representative semantically equivalent but non-exact example:
+
+```text
+REF : a dove body serum in a white bottle
+PRED: a white dove body serum bottle
+```
+
+Do đó Exact Match `0.30` phải được đọc cùng BLEU và qualitative outputs; controlled schema có nhiều template diễn đạt cùng product semantics.
+
+## 4.5 Output/artifact thực tế
+
+Kaggle run tạo:
+
+```text
+outputs/phase4_captioning/
+├── best.pt
+├── last.pt
+├── checkpoint_epoch_010.pt
+├── checkpoint_epoch_020.pt
+├── ...
+├── history.json
+└── summary.json
+
+outputs/phase4_captioning_evaluation/
+└── report.json
+```
+
+Recommended retained artifacts:
+
+```text
+best.pt
+history.json
+summary.json
+phase4_captioning_evaluation/report.json
+```
+
+Model weights/artifacts không bắt buộc commit Git; Save Version/archive trên Kaggle là hợp lệ.
 
 ## 4.6 Definition of Done
 
-- [ ] Data/tokenizer/mask/attention/model/decoding tests pass.
-- [ ] Gradient từ loss đi tới CNN encoder.
-- [ ] Model overfit được tiny dataset.
-- [ ] Full training có validation curve và checkpoint.
-- [ ] Greedy decoding sinh câu kết thúc hợp lệ.
-- [ ] BLEU-1..4 được tính đúng trên test.
-- [ ] Có phân tích qualitative và failure cases.
+- [x] Core data/tokenizer/mask/attention/model/generation contracts chạy thành công trên real pipeline.
+- [x] Gradient từ caption objective đi qua decoder tới scratch CNN trong full end-to-end training.
+- [ ] Tiny-overfit gate — **explicitly skipped**; đây là scope exception, không được claim pass.
+- [x] Full training có validation history và best checkpoint.
+- [x] Greedy decoding sinh held-out captions autoregressively từ `BOS`.
+- [x] BLEU-1..4 được tính trên held-out test split và predictions được lưu.
+- [ ] Systematic qualitative/failure-case analysis — **deferred to Phase 5**.
+
+**Phase 4 gate decision:** `COMPLETE — functional scratch baseline with documented exceptions.`
+
+Lý do cho phép đóng baseline dù strict original checklist chưa 100%:
+
+1. Người dùng chủ động quyết định bỏ tiny-overfit để rút ngắn thời gian, đúng rule cho phép exception khi được ghi rõ.
+2. Full end-to-end training trên `456` samples và held-out test trên `80` samples cung cấp evidence mạnh hơn về pipeline thực sự hoạt động, nhưng **không thay thế claim tiny-overfit**.
+3. Các mục chưa làm được ghi rõ là deferred, không bị đánh dấu giả là hoàn thành.
+4. Phase 5 sẽ chịu trách nhiệm failure analysis, reproducibility consolidation và ablations.
 
 ---
 
@@ -1915,12 +2068,12 @@ Chỉ gọi API nội bộ đã test. Không duplicate preprocessing/model code.
 
 ### Captioning
 
-- [ ] Chọn checkpoint bằng validation metric.
-- [ ] BLEU-1..4 trên test.
+- [x] Chọn checkpoint bằng validation metric; local demo/evaluation checkpoint epoch `20`, best valid loss `0.1547446847`.
+- [x] BLEU-1..4 trên test bằng greedy và beam; report lưu ở `outputs/phase5_caption_decoding/comparison.json`.
 - [ ] Perplexity hoặc test loss.
-- [ ] Greedy vs beam comparison.
+- [x] Greedy vs beam comparison trên cùng checkpoint/test split; beam tăng BLEU-4 `+0.0246`, giảm exact match `-0.0125`.
 - [ ] Good/average/bad examples.
-- [ ] Failure cases: repetition, missing objects, hallucination.
+- [x] Failure records lưu repeated/missing/extra tokens và qualitative selection ở `outputs/phase5_caption_decoding/`.
 
 ### Advanced diffusion checkpoints đã thực hiện
 
@@ -1929,7 +2082,7 @@ Chỉ gọi API nội bộ đã test. Không duplicate preprocessing/model code.
 - [ ] Pixel-vs-latent comparison tách reconstruction error khỏi generation error.
 - [ ] U-Net-vs-DiT comparison ghi parameter/compute mismatch.
 - [ ] One/few-step comparison báo quality/diversity degradation so với teacher.
-- [ ] Mọi checkpoint deferred được ghi rõ, không tính vào kết quả hoàn thành.
+- [x] Mọi checkpoint advanced/deferred được ghi rõ trong README và không tính vào kết quả core.
 
 ## 5.4 Checklist ablation
 
@@ -1939,53 +2092,53 @@ Chọn ít nhất 2 ablation có câu hỏi rõ ràng, không chạy chỉ để
 - [ ] Linear vs cosine beta schedule.
 - [ ] U-Net không attention vs có middle attention.
 - [ ] Background trắng vs neutral random.
-- [ ] Condition guidance scale.
+- [x] Condition guidance scale: Phase 2/3 fixed-noise CFG boundary và scale comparisons đã có evidence; CFG `0` loại prompt/class effect đúng contract.
 - [ ] Caption decoder 1 layer vs 2 layers.
-- [ ] Greedy vs beam search.
+- [x] Greedy vs beam search trên cùng Phase 4 checkpoint, test split và max length.
 
 Mỗi ablation phải giữ các biến còn lại càng giống càng tốt và dùng cùng seed khi phù hợp.
 
 ## 5.5 Reproducibility checklist
 
 - [ ] Mỗi run có config snapshot.
-- [ ] Seed Python/NumPy/PyTorch.
+- [x] Seed Python/NumPy/PyTorch được cấu hình trong training/evaluation paths; demo dùng local `torch.Generator` theo seed.
 - [ ] Ghi Python/PyTorch/CUDA versions.
 - [ ] Ghi GPU/CPU và thời gian train.
 - [ ] Checkpoint resume hoạt động.
 - [ ] Raw dataset download/setup được document.
-- [ ] Processed dataset sinh lại bằng command.
-- [ ] Train/evaluate/sample command được document.
-- [ ] Không cần pretrained weights.
+- [x] Processed dataset sinh lại bằng command + version-controlled config.
+- [x] Train/evaluate/sample/demo commands được document trong README.
+- [x] Không cần pretrained weights; toàn bộ core checkpoint train từ random initialization.
 
 ## 5.6 README/report checklist
 
-- [ ] Problem statement.
-- [ ] Scope và out-of-scope.
+- [x] Problem statement.
+- [x] Scope và out-of-scope.
 - [ ] Dataset và license.
-- [ ] Phase architecture diagrams.
-- [ ] DDPM math nối với code tensor.
+- [x] Phase architecture diagram hai chiều trong README.
+- [x] DDPM math notation nối với code tensor + contract table trong README.
 - [ ] U-Net architecture table.
-- [ ] Conditioning mechanism.
-- [ ] Captioning architecture.
-- [ ] Training setup.
-- [ ] Metrics và protocol.
-- [ ] Results và ablation.
-- [ ] Failure cases.
-- [ ] Limitations.
-- [ ] Reproduce commands.
-- [ ] Future work.
+- [x] Conditioning mechanism.
+- [x] Captioning architecture.
+- [x] Training setup.
+- [x] Metrics và protocol.
+- [x] Results và ablation.
+- [x] Failure cases.
+- [x] Limitations.
+- [x] Reproduce commands.
+- [x] Future work.
 - [ ] Taxonomy phân biệt formulation, representation, backbone, condition và sampler.
 - [ ] Paper/code/model links trỏ tới nguồn gốc hoặc official repository/model card.
 - [ ] Model lớn chỉ được dùng làm architecture study nếu không thuộc scratch experiment.
 
 ## 5.7 Definition of Done
 
-- [ ] Test suite pass trong môi trường được hỗ trợ.
-- [ ] Phase 1–4 đều có checkpoint/artifact/metric theo scope thực hiện.
-- [ ] Ít nhất hai ablation được báo cáo trung thực.
+- [x] Test suite pass trong môi trường được hỗ trợ: `208 passed` trong Conda env local.
+- [x] Phase 1–4 đều có checkpoint/artifact/metric theo scope thực hiện.
+- [x] Ít nhất hai ablation được báo cáo trung thực: CFG scale, greedy-vs-beam và real-vs-perturbed visual tokens.
 - [ ] Có memorization/failure-case analysis.
-- [ ] README đủ để người khác setup, train và evaluate.
-- [ ] Demo/notebook chỉ gọi implementation trong `src/`.
+- [x] README đủ để người khác setup, train, evaluate và chạy local playground khi có checkpoint.
+- [x] Demo chỉ dùng inference adapter gọi implementation trong `src/`; không duplicate scheduler/model/attention/sampler core.
 
 ---
 
@@ -2019,45 +2172,76 @@ Mỗi ablation phải giữ các biến còn lại càng giống càng tốt và
 
 # 7. Mốc tiếp theo hiện tại
 
-**Phase 3 — Text-Conditioned DDPM pooled-text functional baseline đã hoàn thành.**
+**Phase 4 — Image Captioning functional scratch baseline đã hoàn thành.**
 
 Bằng chứng chính:
 
 ```text
-controlled captions cho 3 SKU classes
-→ train-only vocabulary (19 tokens)
-→ deterministic tokenizer + BOS/EOS/PAD/UNK
-→ custom scaled-dot-product + multi-head attention
-→ scratch Transformer-style text encoder
-→ masked mean pooled text condition
-→ prompt dropout / null prompt
-→ TextConditionalUNet
-→ 6-sample mini-batch overfit (final/initial = 0.05549)
-→ full scratch training trên Tesla T4
-→ best checkpoint epoch 98, valid loss 0.0145077739
-→ text CFG fixed-noise boundary check
-→ CFG 0 loại prompt effect hoàn toàn
-→ CFG 1/2/3 tăng prompt separation
-→ same-noise single-color-word prompt swaps
-→ documented partial-compositionality limitation
+Product captioning data
+→ controlled captions reuse từ Phase 3
+→ train/valid/test = 456 / 147 / 80
+→ train-only vocabulary = 19 tokens
+→ decoder sequence length = 10
+
+Scratch vision path
+→ image [B,3,64,64]
+→ random-init CNN
+→ feature map [B,256,8,8]
+→ 64 spatial visual tokens [B,64,256]
+→ learnable visual positional embedding
+
+Scratch language path
+→ token embedding + sinusoidal position encoding
+→ custom causal self-attention
+→ future-token leakage test pass
+→ custom visual cross-attention
+→ FFN + residual + LayerNorm
+→ vocabulary logits [B,L,19]
+
+Full end-to-end training
+→ 4,386,624 parameters
+→ Tesla T4
+→ 100 epochs
+→ best checkpoint selected only by validation loss
+→ best epoch = 17
+→ best valid loss = 0.1567438867
+→ later epochs show clear overfitting; test uses best.pt, not epoch 100
+
+Held-out autoregressive evaluation
+→ greedy generation from BOS, no teacher forcing
+→ test = 80 images
+→ Exact Match = 0.3000
+→ BLEU-1 = 0.8687
+→ BLEU-2 = 0.7397
+→ BLEU-3 = 0.5966
+→ BLEU-4 = 0.4985
 ```
 
-Checkpoint core tiếp theo là **Phase 4 — Image Captioning (Image → Text)**.
+Phase 4 được đóng ở mức **functional scratch baseline with documented exceptions**.
 
-Vertical slice khuyên dùng tiếp theo:
+Deferred/limitations không được claim đã hoàn thành:
+
+- tiny overfit 1/10 samples bị người dùng chủ động bỏ qua;
+- Flickr8k experiment chưa chạy;
+- beam search đã implement/test và có Phase 5 greedy-vs-beam report;
+- BLEU hiện là single-reference per metadata record, chưa multi-reference;
+- systematic caption failure analysis đã có; bucket `average` không có sample dưới threshold hiện tại nên không claim đủ curated good/average/bad panel;
+- cross-attention visualization chưa làm;
+- checkpoint resume smoke chưa kiểm chứng.
+
+Checkpoint core tiếp theo là **Phase 5 — Evaluation, Ablation, Integration and Report**.
+
+Vertical slice tiếp theo:
 
 ```text
-chốt captioning dataset/split
-→ parse image-caption pairs
-→ reuse tokenizer/vocabulary primitives từ Phase 3 khi contract phù hợp
-→ build caption vocabulary chỉ từ train split
-→ CaptionDataset + padding/collate mask
-→ inspect một DataLoader batch
-→ implement scratch CNN encoder giữ spatial tokens
-→ shape + gradient tests
-→ sau đó mới implement causal Transformer decoder + visual cross-attention
+freeze Phase 1–4 evidence
+→ lập experiment/result table thống nhất
+→ captioning good/average/bad + failure analysis
+→ diffusion memorization/failure summary
+→ chọn ít nhất 2 ablations có câu hỏi rõ ràng và compute thấp
+→ gom reproducibility commands/config/environment
+→ cập nhật README/report
+→ final demo chỉ gọi code trong src/
 ```
 
-Phase 4 vẫn giữ scratch scope: CNN encoder, decoder attention và vocabulary head đều random initialization; không dùng pretrained ResNet/ViT/CLIP hoặc pretrained language model cho experiment chính.
-
-Optional diffusion follow-up có thể làm sau hoặc song song nếu muốn nghiên cứu sâu hơn: Phase 3 cross-attention, same-prompt/different-seed diversity, `<UNK>` sampling, Phase-3-specific memorization check, hoặc các nhánh A1/A2/A3. Các mục này không được tự động đánh dấu hoàn thành chỉ vì pooled Phase 3 đã đóng gate.
+Không cần train lại Phase 4 trừ khi một ablation Phase 5 yêu cầu. Advanced A1–A11 vẫn là optional/deferred trừ checkpoint nào được thực sự chạy và có evidence.

@@ -1,0 +1,74 @@
+{
+  "classes": [
+    {
+      "class_id": 0,
+      "class_name": "dove_body_serum_glow_recharge_547ml",
+      "source_raw_root": "data/raw/products/dove_body_serum_glow_recharge_547ml/coco",
+      "coco_category_id": 1,
+      "coco_category_name": "DOVE_ST_SerumDuongTheSangDaGlowRecharge_547ml_chai"
+    },
+    {
+      "class_id": 1,
+      "class_name": "dove_deodorant_niacinamide_omega_40ml",
+      "source_raw_root": "data/raw/products/dove_deodorant_niacinamide_omega_40ml/coco",
+      "coco_category_id": 1,
+      "coco_category_name": "DOVE_Nu_KemNganMuiHHoaNiaOmega_40ml_tuyp"
+    },
+    {
+      "class_id": 2,
+      "class_name": "lifebuoy_handwash_vitamin_protection_400g",
+      "source_raw_root": "data/raw/products/lifebuoy_handwash_vitamin_protection_400g/coco",
+      "coco_category_id": 1,
+      "coco_category_name": "LIFEBUOY_NuocRuaTayVitaminBaoVeVuotTroi_400g_tui"
+    }
+  ],
+  "splits": {
+    "train": {
+      "num_records": 456,
+      "class_counts": {
+        "0": 156,
+        "1": 203,
+        "2": 97
+      }
+    },
+    "valid": {
+      "num_records": 147,
+      "class_counts": {
+        "0": 54,
+        "1": 62,
+        "2": 31
+      }
+    },
+    "test": {
+      "num_records": 80,
+      "class_counts": {
+        "0": 28,
+        "1": 36,
+        "2": 16
+      }
+    }
+  },
+  "dataloader": {
+    "batch_shape": [
+      12,
+      3,
+      64,
+      64
+    ],
+    "dtype": "torch.float32",
+    "min": -0.8509804010391235,
+    "max": 1.0,
+    "finite": true
+  },
+  "contact_sheets": [
+    "outputs\\phase2_data\\contact_sheet_train_class_0.png",
+    "outputs\\phase2_data\\contact_sheet_train_class_1.png",
+    "outputs\\phase2_data\\contact_sheet_train_class_2.png",
+    "outputs\\phase2_data\\contact_sheet_valid_class_0.png",
+    "outputs\\phase2_data\\contact_sheet_valid_class_1.png",
+    "outputs\\phase2_data\\contact_sheet_valid_class_2.png",
+    "outputs\\phase2_data\\contact_sheet_test_class_0.png",
+    "outputs\\phase2_data\\contact_sheet_test_class_1.png",
+    "outputs\\phase2_data\\contact_sheet_test_class_2.png"
+  ]
+}

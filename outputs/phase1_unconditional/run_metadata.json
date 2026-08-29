@@ -1,0 +1,59 @@
+{
+  "phase": "Phase 1 - Unconditional Pixel DDPM",
+  "recorded_at_utc": "2026-08-28T19:16:56.929117+00:00",
+  "git": {
+    "commit": "6550c2495fe3ddf5a0477f60dfb43ee45365e5cf",
+    "branch": "main",
+    "status": "M task.md\n?? outputs/phase0_data/qa_report.json\n?? outputs/phase1_overfit_one_image/\n?? outputs/phase1_unconditional/forward_noising_stats.json\n?? outputs/phase1_unconditional/history.json\n?? products_64.tar.gz\n?? scripts/inspect_phase1_forward_noising.py\n?? scripts/record_phase1_metadata.py\n?? scripts/sample_overfit_one_image.py\n?? scripts/smoke_resume_phase1.py"
+  },
+  "environment": {
+    "python": "3.14.7 | packaged by Anaconda, Inc. | (main, Aug 14 2026, 10:12:46) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "pytorch": "2.13.0+cpu",
+    "cuda_available": false,
+    "torch_cuda_version": null,
+    "cudnn_version": null
+  },
+  "hardware": {
+    "gpu": null,
+    "gpu_memory_gb": null,
+    "cpu": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel"
+  },
+  "dataset": {
+    "train_images": 97,
+    "valid_images": 31,
+    "image_size": 64
+  },
+  "model": {
+    "base_channels": 64,
+    "parameter_count": 4603587
+  },
+  "diffusion": {
+    "num_timesteps": 1000,
+    "beta_start": 0.0001,
+    "beta_end": 0.02
+  },
+  "training": {
+    "seed": 42,
+    "batch_size": 8,
+    "learning_rate": 0.0002,
+    "configured_epochs": 100,
+    "duration_seconds": null,
+    "duration_note": "Original Kaggle baseline duration was not recorded automatically."
+  },
+  "best_checkpoint": {
+    "path": "checkpoints\\phase1_unconditional\\best.pt",
+    "epoch": 98,
+    "train_loss": 0.022372316794719585,
+    "valid_loss": 0.04227754330983566
+  },
+  "sampling_evidence": {
+    "seed": 342,
+    "final_min": -0.9998340606689453,
+    "final_max": 0.9998340606689453,
+    "final_mean": 0.4951973855495453,
+    "final_std": 0.5756363868713379,
+    "fraction_below_minus_one": 0.0,
+    "fraction_above_one": 0.0
+  }
+}

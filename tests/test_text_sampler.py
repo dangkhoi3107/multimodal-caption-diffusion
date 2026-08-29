@@ -246,3 +246,121 @@ def test_negative_guidance_rejected():
     raise AssertionError(
         "negative guidance should fail"
     )
+
+
+def test_progress_callback_reports_live_snapshots_without_changing_sample():
+    model = TinyTextModel()
+    scheduler = make_scheduler()
+    ids, mask = make_prompt_a()
+    events = []
+
+    def record_progress(
+        completed_steps,
+        total_steps,
+        timestep,
+        snapshot,
+    ):
+        events.append(
+            (
+                completed_steps,
+                total_steps,
+                timestep,
+                snapshot.clone(),
+            )
+        )
+        snapshot.zero_()
+
+    sample_with_callback = sample_ddpm_text_cfg(
+        model=model,
+        scheduler=scheduler,
+        token_ids=ids,
+        padding_mask=mask,
+        bos_id=1,
+        eos_id=2,
+        pad_id=0,
+        shape=(1, 3, 8, 8),
+        device=torch.device("cpu"),
+        guidance_scale=1.0,
+        generator=torch.Generator().manual_seed(99),
+        progress_callback=record_progress,
+        progress_interval=2,
+    )
+    reference_sample = sample_ddpm_text_cfg(
+        model=model,
+        scheduler=scheduler,
+        token_ids=ids,
+        padding_mask=mask,
+        bos_id=1,
+        eos_id=2,
+        pad_id=0,
+        shape=(1, 3, 8, 8),
+        device=torch.device("cpu"),
+        guidance_scale=1.0,
+        generator=torch.Generator().manual_seed(99),
+    )
+
+    assert [event[:3] for event in events] == [
+        (0, 5, 5),
+        (2, 5, 3),
+        (4, 5, 1),
+        (5, 5, 0),
+    ]
+    for _, _, _, snapshot in events:
+        assert snapshot.shape == (1, 3, 8, 8)
+        assert snapshot.device.type == "cpu"
+        assert torch.isfinite(snapshot).all()
+
+    torch.testing.assert_close(sample_with_callback, reference_sample)
+
+
+def test_non_positive_progress_interval_rejected():
+    model = TinyTextModel()
+    scheduler = make_scheduler()
+    ids, mask = make_prompt_a()
+
+    try:
+        sample_ddpm_text_cfg(
+            model=model,
+            scheduler=scheduler,
+            token_ids=ids,
+            padding_mask=mask,
+            bos_id=1,
+            eos_id=2,
+            pad_id=0,
+            shape=(1, 3, 8, 8),
+            device=torch.device("cpu"),
+            progress_interval=0,
+        )
+    except ValueError:
+        return
+
+    raise AssertionError(
+        "non-positive progress interval should fail"
+    )
+
+
+def test_progress_interval_one_reports_every_reverse_step():
+    model = TinyTextModel()
+    scheduler = make_scheduler()
+    ids, mask = make_prompt_a()
+    completed_steps = []
+
+    def record_step(completed, _total, _timestep, _snapshot):
+        completed_steps.append(completed)
+
+    sample_ddpm_text_cfg(
+        model=model,
+        scheduler=scheduler,
+        token_ids=ids,
+        padding_mask=mask,
+        bos_id=1,
+        eos_id=2,
+        pad_id=0,
+        shape=(1, 3, 8, 8),
+        device=torch.device("cpu"),
+        generator=torch.Generator().manual_seed(7),
+        progress_callback=record_step,
+        progress_interval=1,
+    )
+
+    assert completed_steps == [0, 1, 2, 3, 4, 5]

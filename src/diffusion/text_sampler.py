@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import torch
 
 from src.diffusion.conditional_sampler import (
@@ -8,6 +10,12 @@ from src.diffusion.conditional_sampler import (
 from src.diffusion.scheduler import (
     DDPMScheduler,
 )
+
+
+SamplingProgressCallback = Callable[
+    [int, int, int, torch.Tensor],
+    None,
+]
 
 
 @torch.no_grad()
@@ -25,7 +33,18 @@ def sample_ddpm_text_cfg(
     generator: torch.Generator | None = None,
     return_trajectory: bool = False,
     trajectory_interval: int = 100,
+    progress_callback: SamplingProgressCallback | None = None,
+    progress_interval: int = 50,
 ):
+    """Sample a text-conditioned DDPM chain with optional live snapshots.
+
+    ``progress_callback`` receives ``(completed_steps, total_steps, timestep,
+    snapshot)``. Each snapshot is an independent CPU tensor with shape
+    ``[B, C, H, W]`` so a UI can render it without mutating the sampler state.
+    The first callback contains the initial Gaussian noise at step ``0`` and
+    the last contains the final sample at ``total_steps``.
+    """
+
     if len(shape) != 4:
         raise ValueError(
             "shape must be [B, C, H, W]"
@@ -66,6 +85,11 @@ def sample_ddpm_text_cfg(
     if trajectory_interval <= 0:
         raise ValueError(
             "trajectory_interval must be positive"
+        )
+
+    if progress_interval <= 0:
+        raise ValueError(
+            "progress_interval must be positive"
         )
 
     token_ids = token_ids.to(
@@ -112,6 +136,15 @@ def sample_ddpm_text_cfg(
             x_t.detach()
             .cpu()
             .clone()
+        )
+
+    total_steps = scheduler.num_timesteps
+    if progress_callback is not None:
+        progress_callback(
+            0,
+            total_steps,
+            total_steps,
+            x_t.detach().cpu().clone(),
         )
 
     for timestep in reversed(
@@ -223,6 +256,21 @@ def sample_ddpm_text_cfg(
                 x_t.detach()
                 .cpu()
                 .clone()
+            )
+
+        completed_steps = total_steps - timestep
+        if (
+            progress_callback is not None
+            and (
+                completed_steps % progress_interval == 0
+                or timestep == 0
+            )
+        ):
+            progress_callback(
+                completed_steps,
+                total_steps,
+                timestep,
+                x_t.detach().cpu().clone(),
             )
 
     if return_trajectory:

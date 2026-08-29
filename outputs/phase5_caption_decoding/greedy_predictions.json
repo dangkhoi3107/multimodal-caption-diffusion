@@ -1,0 +1,1292 @@
+[
+  {
+    "file_name": "test/class_00_test_img_000000_ann_000001.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000001_ann_000002.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000001_ann_000003.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000001_ann_000004.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000002_ann_000005.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a dove body serum in a white bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": [
+        "a"
+      ]
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000003_ann_000006.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000003_ann_000007.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000003_ann_000008.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000004_ann_000009.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000005_ann_000010.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000005_ann_000011.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000006_ann_000012.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000007_ann_000013.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000007_ann_000014.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000007_ann_000015.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000007_ann_000016.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000007_ann_000017.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000008_ann_000018.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000008_ann_000019.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000008_ann_000020.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000008_ann_000021.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000008_ann_000022.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000009_ann_000023.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000010_ann_000024.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000010_ann_000025.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000010_ann_000026.png",
+    "class_id": 0,
+    "reference": "a white dove body serum bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000010_ann_000027.png",
+    "class_id": 0,
+    "reference": "a dove body serum in a white bottle",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002507598420197171,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_00_test_img_000010_ann_000028.png",
+    "class_id": 0,
+    "reference": "a white bottle of dove body serum",
+    "prediction": "a white dove body serum bottle",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029623775049853716,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000000_ann_000001.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue dove deodorant tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000000_ann_000002.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000000_ann_000003.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000000_ann_000004.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000001_ann_000005.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000001_ann_000006.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000001_ann_000007.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000001_ann_000008.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000002_ann_000009.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000002_ann_000010.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000002_ann_000011.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue dove deodorant tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000002_ann_000012.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue dove deodorant tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.1771262025347287e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000003_ann_000013.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000003_ann_000014.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000003_ann_000015.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000003_ann_000016.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000003_ann_000017.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000004_ann_000018.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000005_ann_000019.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000005_ann_000020.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000005_ann_000021.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000005_ann_000022.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000006_ann_000023.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue dove deodorant tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.1771262025347287e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000006_ann_000024.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue dove deodorant tube",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000006_ann_000025.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000006_ann_000026.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue dove deodorant tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.1771262025347287e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000006_ann_000027.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000007_ann_000028.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000008_ann_000029.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue dove deodorant tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000009_ann_000030.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000009_ann_000031.png",
+    "class_id": 1,
+    "reference": "a dove deodorant in a blue tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000009_ann_000032.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000009_ann_000033.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000010_ann_000034.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a dove deodorant in a blue tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.0029071536855851906,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [
+        "a",
+        "in"
+      ],
+      "repeated_prediction_tokens": [
+        "a"
+      ]
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000010_ann_000035.png",
+    "class_id": 1,
+    "reference": "a blue dove deodorant tube",
+    "prediction": "a dove deodorant in a blue tube",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.208959113631425e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "a",
+        "in"
+      ],
+      "repeated_prediction_tokens": [
+        "a"
+      ]
+    }
+  },
+  {
+    "file_name": "test/class_01_test_img_000011_ann_000036.png",
+    "class_id": 1,
+    "reference": "a blue tube of dove deodorant",
+    "prediction": "a blue tube of dove deodorant",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000000_ann_000001.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000000_ann_000002.png",
+    "class_id": 2,
+    "reference": "a red pouch of lifebuoy handwash",
+    "prediction": "a red pouch of lifebuoy handwash",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000001_ann_000003.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red pouch of lifebuoy handwash",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000002_ann_000004.png",
+    "class_id": 2,
+    "reference": "a red lifebuoy handwash pouch",
+    "prediction": "a red pouch of lifebuoy handwash",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000003_ann_000005.png",
+    "class_id": 2,
+    "reference": "a red pouch of lifebuoy handwash",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.1771262025347287e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "of"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000004_ann_000006.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000005_ann_000007.png",
+    "class_id": 2,
+    "reference": "a red lifebuoy handwash pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000005_ann_000008.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red pouch of lifebuoy handwash",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000006_ann_000009.png",
+    "class_id": 2,
+    "reference": "a red lifebuoy handwash pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000006_ann_000010.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000007_ann_000011.png",
+    "class_id": 2,
+    "reference": "a red lifebuoy handwash pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000007_ann_000012.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000008_ann_000013.png",
+    "class_id": 2,
+    "reference": "a red lifebuoy handwash pouch",
+    "prediction": "a red pouch of lifebuoy handwash",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 2.4028114143349887e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000008_ann_000014.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red pouch of lifebuoy handwash",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 0.002830382234950214,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [
+        "of"
+      ],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000009_ann_000015.png",
+    "class_id": 2,
+    "reference": "a red lifebuoy handwash pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": true,
+      "sentence_bleu4": 1.0,
+      "quality_bucket": "good",
+      "missing_reference_tokens": [],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  },
+  {
+    "file_name": "test/class_02_test_img_000009_ann_000016.png",
+    "class_id": 2,
+    "reference": "a lifebuoy handwash in a red pouch",
+    "prediction": "a red lifebuoy handwash pouch",
+    "analysis": {
+      "exact_match": false,
+      "sentence_bleu4": 1.7824801753470652e-05,
+      "quality_bucket": "bad",
+      "missing_reference_tokens": [
+        "a",
+        "in"
+      ],
+      "extra_prediction_tokens": [],
+      "repeated_prediction_tokens": []
+    }
+  }
+]
