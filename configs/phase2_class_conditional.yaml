@@ -24,6 +24,7 @@ training:
   epochs: 100
   seed: 42
   num_workers: 0
+  checkpoint_interval: 10
 
 overfit_minibatch:
   images_per_class: 2
