@@ -1,0 +1,45 @@
+data:
+  # Reuse the controlled captions already created and validated in Phase 3.
+  train_metadata: data/processed/products_multiclass_64/train_phase3.jsonl
+  valid_metadata: data/processed/products_multiclass_64/valid_phase3.jsonl
+  test_metadata: data/processed/products_multiclass_64/test_phase3.jsonl
+  image_size: 64
+
+text:
+  # Reuse the train-only vocabulary from Phase 3.
+  vocabulary_path: outputs/phase3_text_conditional/vocabulary.json
+
+  # Number of teacher-forcing decoder positions.
+  # Dataset internally encodes sequence_length + 1 tokens before shifting.
+  sequence_length: 10
+
+model:
+  # Shared representation width used by CNN tokens and Transformer decoder.
+  model_dim: 256
+
+  image_encoder:
+    in_channels: 3
+    base_channels: 64
+    output_channels: 256
+
+  decoder:
+    num_heads: 4
+    num_layers: 3
+    feedforward_dim: 512
+    dropout: 0.10
+
+training:
+  batch_size: 16
+  learning_rate: 0.0003
+  epochs: 100
+  seed: 42
+  num_workers: 0
+  checkpoint_interval: 10
+
+generation:
+  max_length: 10
+  strategy: greedy
+
+evaluation:
+  # Baseline metric. Later we can add corpus BLEU-1..4 and exact-match analysis.
+  primary_metric: bleu4
