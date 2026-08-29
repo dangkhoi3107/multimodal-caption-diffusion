@@ -1,0 +1,39 @@
+data:
+  train_metadata: data/processed/products_multiclass_64/train_phase3.jsonl
+  valid_metadata: data/processed/products_multiclass_64/valid_phase3.jsonl
+  test_metadata: data/processed/products_multiclass_64/test_phase3.jsonl
+  image_size: 64
+
+text:
+  vocabulary_path: outputs/phase3_text_conditional/vocabulary.json
+  min_frequency: 1
+  max_length: 10
+
+  embedding_dim: 128
+  num_heads: 4
+  num_layers: 2
+  feedforward_dim: 256
+  dropout: 0.10
+
+conditioning:
+  condition_dim: 256
+  prompt_dropout: 0.10
+
+diffusion:
+  num_timesteps: 1000
+  beta_start: 0.0001
+  beta_end: 0.02
+
+model:
+  in_channels: 3
+  out_channels: 3
+  base_channels: 64
+  time_embedding_dim: 128
+  time_dim: 256
+
+training:
+  batch_size: 12
+  learning_rate: 0.0002
+  epochs: 100
+  seed: 42
+  num_workers: 0
