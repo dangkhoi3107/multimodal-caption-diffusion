@@ -177,8 +177,8 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 - [x] Phase 1 — Unconditional pixel DDPM. **Phase gate closed: full regression test pass; training, sampling và required evidence đã được kiểm chứng.**
 - [ ] A1 — Improved DDPM/EDM design experiments.
 - [ ] A2 — DDIM and optional fast solvers.
-- [ ] Phase 2 — Class-conditioned DDPM + CFG.
-- [ ] Phase 3 — Text-conditioned DDPM.
+- [x] Phase 2 — Class-conditioned DDPM + CFG. **Phase gate closed: 3-class scratch training, CFG sanity, same-noise class control, diversity và memorization sanity check đã được kiểm chứng.**
+- [x] Phase 3 — Text-conditioned DDPM. **Phase gate closed for pooled-text functional baseline: scratch text encoder, prompt dropout, full training, text CFG và same-noise color prompt swaps đã được kiểm chứng; compositional generalization vẫn được ghi rõ là hạn chế.**
 - [ ] A3 — Mask/edge spatial control.
 - [ ] A4 — NCSN/score matching.
 - [ ] A5 — Score SDE/probability-flow ODE.
@@ -195,14 +195,25 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 
 - [x] Repository đã có skeleton `src/captioning`, `src/diffusion`, `src/utils`.
 - [x] Documentation map và ownership skeleton cho sampler/score/consistency/autoencoding/DiT/flow đã được tạo.
-- [x] Dataset sản phẩm COCO đã được tải và giữ trong `data/raw/products/`.
-- [x] Dataset hiện tại có `train`, `valid`, `test` không trùng source image.
-- [x] Dataset hiện tại có 104 ảnh và 144 instance của một SKU Lifebuoy.
-- [x] Polygon COCO hiện tại có segmentation, bbox, area và category hợp lệ.
-- [x] Đã có processed crop dataset `data/processed/products_64/` với train/valid/test metadata và QA artifacts.
+- [x] Dataset sản phẩm COCO được giữ immutable dưới `data/raw/products/`.
+- [x] Phase 1 giữ dataset một SKU Lifebuoy với `97` train / `31` valid / `16` test instances sau preprocessing.
+- [x] Phase 2 đã mở rộng lên `3` SKU classes với `456` train / `147` valid / `80` test instances, tổng `683` instances.
+- [x] Phase 2 class mapping ổn định: `0=dove_body_serum_glow_recharge_547ml`, `1=dove_deodorant_niacinamide_omega_40ml`, `2=lifebuoy_handwash_vitamin_protection_400g`; null CFG class là `3`.
+- [x] Đã có processed crop datasets `data/processed/products_64/` và `data/processed/products_multiclass_64/` cùng metadata/QA artifacts.
 - [x] Đã có unconditional pixel-space DDPM Phase 1: scheduler, timestep embedding, U-Net, trainer và sampler.
+- [x] Đã có Phase 2 class conditioning, conditional U-Net, condition dropout, conditional trainer và CFG sampler.
+- [x] Phase 2 full scratch training trên Tesla T4 hoàn thành; best checkpoint epoch `99`, best valid loss `0.0144293566`.
+- [x] Full regression suite sau Phase 2 pass: `115 passed`.
+- [x] Phase 3 có controlled caption metadata cho cùng `456` train / `147` valid / `80` test instances; caption dùng brand/product/color/package quan sát được.
+- [x] Phase 3 vocabulary build **chỉ từ train captions** có `19` tokens, special IDs cố định `PAD=0`, `BOS=1`, `EOS=2`, `UNK=3`, `max_length=10`; train/valid/test đều `0` OOV trong controlled schema.
+- [x] Đã có tokenizer deterministic, custom scaled-dot-product attention, custom multi-head attention, scratch text encoder, pooled text conditioner, prompt dropout, `TextConditionalUNet`, text trainer và text CFG sampler.
+- [x] Phase 3 mini-batch overfit trên `6` samples đạt `final/initial = 0.0554933`; mean prompt-dropout fraction `0.101556`.
+- [x] Phase 3 full scratch training trên Tesla T4 hoàn thành với `4,970,051` parameters; best checkpoint epoch `98`, best valid loss `0.0145077739`.
+- [x] Full text-CFG fixed-noise evaluation pass: CFG `0` cho pairwise MAD đúng `0`; CFG `1→2→3` làm prompt differences tăng có hệ thống.
+- [x] Same-noise color prompt-swap ở CFG `2.0` tạo measurable changes: serum white↔red `0.087546`, deodorant blue↔white `0.067669`, Lifebuoy red↔blue `0.139538` mean absolute difference.
+- [x] Phase 3 limitation đã được ghi rõ: color/package/brand vẫn tương quan mạnh với SKU trong train data, nên kết quả mới chứng minh **partial text sensitivity**, không chứng minh full compositional disentanglement.
 - [ ] Chưa có model captioning.
-- [x] Đã có Phase 1 training/validation/sampling pipeline; checkpoint và experiment artifacts được lưu local/Kaggle, không commit model weights.
+- [x] Checkpoint/model weights và experiment artifacts được lưu local/Kaggle, không commit model weights.
 
 ## 3. Cấu trúc repository mục tiêu
 
@@ -725,130 +736,265 @@ outputs/phase1_unconditional/<run_id>/
 
 ## 2.1 Mục tiêu
 
-Mở rộng U-Net:
+Mở rộng diffusion model từ unconditional sang class-conditioned:
 
 ```text
-UNet(x_t, timestep, class_id) -> predicted_noise
+ConditionalUNet(x_t, timestep, class_id) -> predicted_noise
 ```
 
-và chứng minh class condition ảnh hưởng kết quả khi giữ nguyên initial noise.
+và chứng minh class condition ảnh hưởng kết quả khi giữ nguyên initial noise. Baseline vẫn được train hoàn toàn từ random initialization.
 
 ## 2.2 Điều kiện dữ liệu
 
 - [x] Phase 1 đạt Definition of Done.
-- [ ] Có tối thiểu 2 class; mục tiêu tốt hơn là 3–5 class.
-- [ ] Taxonomy cùng cấp độ, ưu tiên SKU-level.
-- [ ] Mỗi class có target tối thiểu đã ghi rõ trước thu thập.
-- [ ] Mọi object thuộc class mục tiêu xuất hiện trong ảnh đã được annotate nhất quán.
-- [ ] Thống kê train/valid/test và imbalance theo class.
-- [ ] Không coi augmentation từ cùng source là sample độc lập khi split.
+- [x] Có tối thiểu 2 class; baseline Phase 2 dùng `3` SKU classes.
+- [x] Taxonomy cùng cấp độ SKU-level.
+- [ ] Mỗi class có target tối thiểu đã ghi rõ **trước** thu thập. Không có bằng chứng pre-registration cho ngưỡng này nên không backfill checkbox.
+- [ ] Mọi object thuộc class mục tiêu xuất hiện trong ảnh đã được annotate nhất quán. COCO annotations hợp lệ nhưng chưa có audit độc lập để chứng minh không bỏ sót object.
+- [x] Thống kê train/valid/test và imbalance theo class.
+- [x] Roboflow exports dùng cho Phase 2 báo không có augmentation; project giữ nguyên split nguồn và không tạo augmented clone để phân tán qua split.
 
-## 2.3 File và idea dự kiến
+Class mapping ổn định:
+
+```text
+0 -> dove_body_serum_glow_recharge_547ml
+1 -> dove_deodorant_niacinamide_omega_40ml
+2 -> lifebuoy_handwash_vitamin_protection_400g
+3 -> NULL / unconditional CFG condition
+```
+
+Processed instance counts:
+
+| Split | Class 0 | Class 1 | Class 2 | Total |
+|---|---:|---:|---:|---:|
+| train | 156 | 203 | 97 | 456 |
+| valid | 54 | 62 | 31 | 147 |
+| test | 28 | 36 | 16 | 80 |
+| **total** | **238** | **301** | **144** | **683** |
+
+Train imbalance lớn nhất/nhỏ nhất khoảng `203 / 97 ≈ 2.09×`; baseline không dùng weighted sampler vì mức này được chấp nhận cho correctness experiment.
+
+## 2.3 File và implementation thực tế
+
+### `configs/phase2_data.yaml`
+
+Mô tả multi-source preprocessing, source-folder → project class mapping và output `data/processed/products_multiclass_64/`.
 
 ### `configs/phase2_class_conditional.yaml`
 
-Kế thừa rõ các hyperparameter Phase 1 và thêm `num_classes`, `condition_dropout`, `guidance_scales`, class mapping.
+Kế thừa scheduler/U-Net baseline và thêm `num_classes=3`, `condition_dropout=0.10`, training config và mini-batch overfit config.
 
 ### `src/diffusion/conditioning.py`
 
-**Idea:** biến class/text condition thành vector có cùng dimension với time embedding.
-
 - `ClassConditioner(num_classes, embedding_dim)`.
-- Reserved `null_class_id` cho classifier-free guidance.
+- Reserved `null_class_id=num_classes`.
 - `drop_condition(class_ids, probability, generator)`.
-- Không chứa sampling formula.
+- Real/null class đều được test shape/range/gradient.
 
-### Thay đổi `src/diffusion/unet.py`
+### `src/diffusion/conditional_unet.py`
 
-- `ConditionalUNet.forward(x_t, timesteps, class_ids)`.
-- Combine baseline: `time_embedding + class_embedding`.
-- Giữ unconditional U-Net có thể chạy hoặc dùng null condition rõ ràng.
-
-### Thay đổi `src/diffusion/sampler.py`
-
-- `guided_noise_prediction(...)` tính:
+Giữ `UNet` Phase 1 không đổi để regression tiếp tục chạy. Phase 2 dùng:
 
 ```text
-eps = eps_uncond + scale * (eps_cond - eps_uncond)
+time_emb  [B, D]
+    +
+class_emb [B, D]
+    =
+condition_emb [B, D]
 ```
 
-- Không duplicate toàn bộ reverse loop.
+`condition_emb` được đưa vào các residual blocks.
 
-### CLI/tests
+### `src/diffusion/conditional_trainer.py`
 
-- `scripts/train_phase2.py`.
-- `scripts/sample_phase2.py`.
-- `tests/test_conditioning.py`.
-- Mở rộng U-Net/sampler tests.
+- Conditional epsilon-prediction MSE.
+- Random timestep/noise per sample.
+- Condition dropout cho CFG training.
+- Full train/validation loop không sửa Phase 1 trainer.
+
+### `src/diffusion/conditional_sampler.py`
+
+CFG:
+
+```text
+eps_cfg = eps_uncond + scale * (eps_cond - eps_uncond)
+```
+
+Reverse posterior dùng scheduler Phase 1 đã kiểm chứng.
+
+### Scripts/tests thực tế
+
+- `scripts/inspect_phase2_raw_data.py`
+- `scripts/prepare_phase2_products.py`
+- `scripts/inspect_phase2_dataset.py`
+- `scripts/overfit_phase2_minibatch.py`
+- `scripts/train_phase2_conditional.py`
+- `scripts/evaluate_phase2_cfg.py`
+- `scripts/evaluate_phase2_full_cfg.py`
+- `scripts/evaluate_phase2_quality.py`
+- `tests/test_conditioning.py`
+- `tests/test_conditional_unet.py`
+- `tests/test_conditional_trainer.py`
+- `tests/test_conditional_sampler.py`
 
 ## 2.4 Checklist triển khai
 
 ### A. Data expansion
 
-- [ ] Chốt danh sách class và mapping ID ổn định.
-- [ ] Chuẩn hóa class name theo `brand_category_variant_size`.
-- [ ] Thu thập/annotate thêm class.
-- [ ] Chạy lại Phase 0 cho multi-class dataset.
-- [ ] Review contact sheet riêng từng class.
-- [ ] Kiểm tra imbalance và quyết định sampler/weight nếu cần.
+- [x] Chốt danh sách class và mapping ID ổn định.
+- [x] Chuẩn hóa project class name theo SKU-level snake_case naming.
+- [x] Thu thập/nhập thêm hai SKU class đã được annotate COCO.
+- [x] Chạy preprocessing multi-class dựa trên primitive Phase 0.
+- [x] Review contact sheet riêng từng class.
+- [x] Kiểm tra imbalance; quyết định chưa cần sampler/weight cho baseline.
 
 ### B. Class conditioning
 
-- [ ] Implement class embedding.
-- [ ] Implement null class embedding.
-- [ ] Implement condition dropout ở training.
-- [ ] Combine class/time embedding và document shape `[B, D]`.
-- [ ] Test class IDs ngoài range báo lỗi.
-- [ ] Test null/real condition đều forward được.
-- [ ] Test gradient tới class embedding.
+- [x] Implement class embedding.
+- [x] Implement null class embedding.
+- [x] Implement condition dropout ở training.
+- [x] Combine class/time embedding và document shape `[B, D]`.
+- [x] Test class IDs ngoài range báo lỗi.
+- [x] Test null/real condition đều forward được.
+- [x] Test gradient tới class embedding.
 
 ### C. Training
 
-- [ ] Khởi tạo random toàn bộ model; không load Phase 1 weights cho experiment chính.
-- [ ] Có thể chạy experiment phụ warm-start nhưng phải ghi rõ, không thay thế scratch run.
-- [ ] Overfit mini-batch có ít nhất một sample mỗi class.
-- [ ] Kiểm tra model không bỏ qua class bằng cùng noise khác class.
-- [ ] Train full multi-class dataset.
-- [ ] Log loss tổng và phân tích sample theo từng class.
+- [x] Khởi tạo random toàn bộ model; không load Phase 1 weights cho experiment chính.
+- [x] Warm-start không được dùng cho baseline Phase 2.
+- [x] Overfit balanced mini-batch có ít nhất một sample mỗi class; thực tế dùng `2` sample/class.
+- [x] Kiểm tra model không bỏ qua class bằng cùng noise khác class.
+- [x] Train full multi-class dataset.
+- [x] Log train/valid loss, condition-dropout fraction và sample analysis theo class.
 
 ### D. Classifier-free guidance
 
-- [ ] Implement hai forward cond/uncond khi sampling.
-- [ ] Test `scale=0` tương đương unconditional prediction.
-- [ ] Test `scale=1` tương đương conditional prediction theo công thức chọn.
-- [ ] Sinh comparison grid cho scale `0, 1, 3, 5`.
-- [ ] Ghi nhận scale quá cao làm giảm diversity/artifact ra sao.
+- [x] Implement hai forward cond/uncond khi sampling.
+- [x] Test `scale=0` tương đương unconditional prediction.
+- [x] Test `scale=1` tương đương conditional prediction theo công thức chọn.
+- [x] Sinh CFG comparison grid; overfit sanity dùng `0,1,3,5`, full model dùng `0,1,2,3`.
+- [x] Ghi nhận guidance cao làm condition mạnh/aggressive hơn; final visual QA ưu tiên khoảng `1–2`, giữ `3` để stress-test.
 
 ### E. Evaluation
 
-- [ ] Cùng seed, khác class grid.
-- [ ] Cùng class, khác seed grid.
-- [ ] Kiểm tra class collapse về class phổ biến.
-- [ ] Train classifier nhỏ từ scratch nếu cần class-consistency metric.
-- [ ] Kiểm tra nearest training crop để phát hiện memorization.
-- [ ] Báo cáo limitation khi class có quá ít dữ liệu.
+- [x] Cùng seed, khác class grid.
+- [x] Cùng class, khác seed grid.
+- [x] Kiểm tra class collapse về class phổ biến bằng same-class/different-seed visual QA.
+- [ ] Train classifier nhỏ từ scratch nếu cần class-consistency metric. Đây là optional metric, không chặn baseline Phase 2.
+- [x] Kiểm tra nearest training crop bằng pixel L1 để phát hiện copy gần như nguyên xi.
+- [x] Báo cáo limitation/failure cases theo class và seed.
 
-## 2.5 Output bắt buộc
+### Bằng chứng Phase 2
+
+**Multi-class preprocessing**
+
+- `456` train / `147` valid / `80` test instances.
+- Tổng `683` instances.
+- Preprocessing pass có `0` skipped instances.
+- DataLoader contract `[B,3,64,64]`, `float32`, normalized trong `[-1,1]`.
+- Contact sheets của cả 3 class được visual QA.
+
+**Balanced mini-batch overfit**
+
+- Batch shape: `(6,3,64,64)`.
+- Class IDs: `[0,0,1,1,2,2]`.
+- Conditional U-Net: `4,604,611` parameters.
+- Initial mean loss: `0.2298858922`.
+- Final mean loss: `0.0180983363`.
+- Final / initial loss: `0.0787274770`.
+- Mean observed condition-dropout fraction: `0.10`.
+
+**Full scratch training**
+
+- Hardware: Tesla T4.
+- Train/valid: `456 / 147`.
+- `100` epochs, batch size `12`, condition dropout `0.10`.
+- Best checkpoint: epoch `99`.
+- Epoch 99 train loss: `0.012604`.
+- Best valid loss: `0.0144293566`.
+- Epoch 100 train/valid: `0.013616 / 0.014681`.
+- Full regression after implementation: `115 passed`.
+
+**CFG fixed-noise sanity — full model**
 
 ```text
-outputs/phase2_class_conditional/<run_id>/
-├── per_class_samples/
-├── same_seed_different_class.png
-├── same_class_different_seed.png
-├── guidance_scale_comparison.png
-├── metrics.jsonl
-└── class_distribution.json
+scale=0.0 | 0-1=0.000000 | 0-2=0.000000 | 1-2=0.000000
+scale=1.0 | 0-1=0.146767 | 0-2=0.261148 | 1-2=0.219714
+scale=2.0 | 0-1=0.225588 | 0-2=0.377089 | 1-2=0.319863
+scale=3.0 | 0-1=0.275150 | 0-2=0.429068 | 1-2=0.373027
 ```
+
+`scale=0` cho output giống hệt giữa các class với cùng stochastic path; class differences tăng có hệ thống khi guidance tăng.
+
+**Same-class / different-seed diversity, CFG=2**
+
+```text
+class 0: 0.312451
+class 1: 0.352489
+class 2: 0.407959
+```
+
+Nearest-training-crop pixel L1 nằm trong khoảng `0.120786–0.487825`; không có generated sample nào gần `0`, nên sanity check không cho thấy copy pixel gần như nguyên xi từ train set.
+
+**Visual QA và failure cases**
+
+- Class 1 (Dove deodorant) ổn định nhất qua 4 seed, giữ dạng tube và màu xanh/tím.
+- Class 0 giữ identity tốt ở seed `101/202`, nhưng seed `303/404` bị structure degradation mạnh.
+- Class 2 giữ pouch/red identity tốt ở seed `101/202/404`; seed `303` có color/shape drift.
+- Kết luận Phase 2 là **functional baseline**, không claim class consistency hoàn hảo ở mọi seed.
+
+## 2.5 Output thực tế cần giữ
+
+Không cần ép toàn bộ artifact vào một `<run_id>` mới nếu các script hiện tại đã dùng các path ổn định sau. Các artifact tối thiểu cần giữ local/Kaggle:
+
+```text
+data/processed/products_multiclass_64/
+├── train/
+├── valid/
+├── test/
+├── train.jsonl
+├── valid.jsonl
+├── test.jsonl
+├── classes.json
+└── preprocessing_summary.json
+
+outputs/phase2_data/
+├── contact_sheet_train_class_0.png
+├── contact_sheet_train_class_1.png
+├── contact_sheet_train_class_2.png
+├── ... valid/test contact sheets ...
+└── qa_report.json
+
+outputs/phase2_overfit_minibatch/
+├── model.pt
+├── report.json
+└── loss_curve.png
+
+outputs/phase2_conditional/
+├── best.pt
+├── history.json
+└── summary.json
+
+outputs/phase2_full_cfg_evaluation/
+└── cfg_class_grid.png
+
+outputs/phase2_quality_evaluation/
+└── same_class_different_seed.png
+```
+
+Khuyến nghị experiment hygiene: lưu thêm `report.json` trong `phase2_full_cfg_evaluation/` và `phase2_quality_evaluation/` để numerical evidence không chỉ tồn tại trong terminal/chat log. Việc này không yêu cầu retrain.
 
 ## 2.6 Definition of Done
 
-- [ ] Có từ 2 class trở lên với processed dataset hợp lệ.
-- [ ] Conditional shape/gradient/unit tests pass.
-- [ ] Mini-batch multi-class overfit thành công.
-- [ ] Cùng noise, class khác tạo thay đổi có hệ thống.
-- [ ] CFG hoạt động đúng các boundary scale đã test.
-- [ ] Không luôn sinh class phổ biến nhất.
-- [ ] Có memorization check và failure cases.
+- [x] Có từ 2 class trở lên với processed dataset hợp lệ.
+- [x] Conditional shape/gradient/unit tests pass.
+- [x] Mini-batch multi-class overfit thành công.
+- [x] Cùng noise, class khác tạo thay đổi có hệ thống.
+- [x] CFG hoạt động đúng các boundary scale đã test.
+- [x] Không luôn sinh class phổ biến nhất.
+- [x] Có memorization sanity check và failure cases.
+
+**Phase 2 status:** COMPLETE — functional baseline closed after 3-class scratch training, full regression, fixed-noise CFG verification, same-class diversity evaluation, nearest-training-crop sanity check và documented seed-dependent failure cases.
 
 ---
 
@@ -856,120 +1002,169 @@ outputs/phase2_class_conditional/<run_id>/
 
 ## 3.1 Mục tiêu
 
-Chuyển từ class ID sang prompt ngắn:
+Chuyển từ class ID sang prompt ngắn và train toàn bộ text-conditioned DDPM từ random initialization:
 
 ```text
-"a white lifebuoy hand wash bottle"
-    -> text encoder -> text condition -> U-Net -> image
+caption/prompt
+→ deterministic tokenizer
+→ scratch text encoder
+→ pooled text condition
+→ U-Net epsilon prediction
+→ text classifier-free guidance
+→ image
 ```
 
-Baseline text condition dùng pooled text vector. Cross-attention chỉ là extension sau khi baseline hoạt động.
+Baseline Phase 3 dùng **pooled text vector**. Cross-attention là extension tùy chọn sau khi pooled baseline đã đạt gate.
 
 ## 3.2 Điều kiện dữ liệu
 
-- [ ] Phase 2 đạt Definition of Done.
-- [ ] Mỗi ảnh có caption mô tả thuộc tính quan sát được.
-- [ ] Caption không chỉ khác nhau ở class nếu muốn học compositionality.
-- [ ] Có controlled vocabulary nhỏ: class, màu, dạng bao bì, background.
-- [ ] Không gán thuộc tính không quan sát được.
-- [ ] Vocabulary chỉ build từ train split.
+- [x] Phase 2 đạt Definition of Done.
+- [x] Mỗi processed crop có controlled caption mô tả thuộc tính quan sát được.
+- [x] Caption chứa brand/product/color/package thay vì chỉ class ID thuần.
+- [x] Controlled vocabulary nhỏ và deterministic; background baseline đồng nhất nên không thêm background token riêng.
+- [x] Không gán thuộc tính không quan sát được.
+- [x] Vocabulary chỉ build từ train split.
 
-## 3.3 File và idea dự kiến
+Controlled caption schema hiện tại:
 
-### `configs/phase3_text_conditional.yaml`
+```text
+class 0 — dove_body_serum_glow_recharge_547ml
+  white / dove / body serum / bottle
 
-Thêm vocab/min frequency/max length/text dimension/text layers/text dropout và prompt dropout.
+class 1 — dove_deodorant_niacinamide_omega_40ml
+  blue / dove / deodorant / tube
 
-### `src/text/vocabulary.py`
+class 2 — lifebuoy_handwash_vitamin_protection_400g
+  red / lifebuoy / handwash / pouch
+```
 
-**Idea:** ánh xạ token ↔ ID ổn định và serialize được.
+Mỗi class dùng ba template deterministic. Thuộc tính màu/package/brand vẫn tương quan mạnh với SKU, vì vậy Phase 3 baseline **không được diễn giải như bằng chứng full compositional disentanglement**. Prompt-swap chỉ đo mức nhạy của model với token ngoài class.
 
-- Special IDs: `<PAD>`, `<BOS>`, `<EOS>`, `<UNK>`.
-- `build_vocabulary(train_captions, min_frequency)`.
-- `save/load` giữ nguyên ID.
+## 3.3 File/implementation đã có
 
-### `src/text/tokenizer.py`
+### Config/data preparation
 
-**Idea:** normalization và word tokenization deterministic; không phụ thuộc pretrained tokenizer.
+- `configs/phase3_text_conditional.yaml`.
+- `scripts/prepare_phase3_captions.py`.
+- `scripts/build_phase3_vocabulary.py`.
+- `src/data/text_product_dataset.py`.
 
-- `normalize_text(text) -> str`.
-- `tokenize(text) -> list[str]`.
-- `encode(text, vocab, max_length) -> token_ids`.
-- `decode(token_ids, vocab, stop_at_eos=True) -> str`.
+### Scratch text stack
 
-### `src/text/attention.py`
+- `src/text/vocabulary.py` — vocabulary serialize được, special IDs cố định.
+- `src/text/tokenizer.py` — normalization/tokenization/encode/decode deterministic.
+- `src/text/attention.py` — scaled dot-product attention + custom multi-head attention.
+- `src/text/encoder.py` — token embedding + positional encoding + encoder blocks + masked mean pooling.
 
-**Idea:** attention primitives dùng chung; triển khai từ tensor ops/Linear.
-
-- `scaled_dot_product_attention(q, k, v, mask)`.
-- `MultiHeadAttention` tự reshape heads và merge output.
-
-### `src/text/encoder.py`
-
-**Idea:** token embedding + positional encoding + encoder blocks.
-
-- Output token states `[B, L, D]`.
-- Baseline pooled condition `[B, D]` dùng masked mean.
-- Không dùng `nn.Transformer*` hoặc `nn.MultiheadAttention`.
+Không dùng `nn.MultiheadAttention`, `nn.Transformer*`, pretrained tokenizer, CLIP, T5 hoặc pretrained text encoder.
 
 ### Diffusion integration
 
-- `TextConditioner` project pooled text vào `time_embedding_dim`.
-- `TextConditionalUNet.forward(x_t, t, token_ids, padding_mask)`.
-- Prompt dropout/null text cho classifier-free guidance.
+- `src/diffusion/text_conditioning.py` — pooled-text projection + prompt dropout/null prompt.
+- `src/diffusion/text_conditional_unet.py` — time embedding + pooled text condition đưa vào ResBlocks.
+- `src/diffusion/text_trainer.py` — epsilon objective, step/epoch training và validation.
+- `src/diffusion/text_sampler.py` — DDPM reverse sampler với text classifier-free guidance.
 
-### CLI/tests
+### Training/evaluation scripts
 
-- `scripts/train_phase3.py`, `scripts/sample_phase3.py`.
-- `tests/test_vocabulary.py`, `tests/test_tokenizer.py`.
-- `tests/test_attention.py`, `tests/test_text_encoder.py`.
+- `scripts/overfit_phase3_minibatch.py`.
+- `scripts/train_phase3_text_conditional.py`.
+- `scripts/evaluate_phase3_cfg.py` — mini-overfit CFG sanity.
+- `scripts/evaluate_phase3_full_cfg.py` — best-checkpoint CFG evaluation.
+- `scripts/evaluate_phase3_prompt_swap.py` — same-noise single-color-word swaps.
+
+### Tests
+
+- `tests/test_vocabulary.py`.
+- `tests/test_tokenizer.py`.
+- `tests/test_attention.py`.
+- `tests/test_text_encoder.py`.
+- `tests/test_text_conditional_unet.py`.
+- `tests/test_text_trainer.py`.
+- `tests/test_text_product_dataset.py`.
+- `tests/test_text_sampler.py`.
 
 ## 3.4 Checklist triển khai
 
 ### A. Caption metadata
 
-- [ ] Định nghĩa caption schema.
-- [ ] Sinh/viết caption cho từng crop.
-- [ ] Review caption-class consistency.
-- [ ] Thống kê caption length và token frequency.
-- [ ] Chốt max sequence length dựa trên train distribution.
+- [x] Định nghĩa controlled caption schema.
+- [x] Sinh caption cho từng crop train/valid/test.
+- [x] Review caption-class consistency trên các class/templates đại diện.
+- [x] Thống kê caption length và token frequency.
+- [x] Chốt `max_length=10` từ controlled-caption distribution; không có truncation trong train/valid/test.
 
 ### B. Tokenizer/vocabulary
 
-- [ ] Implement normalization.
-- [ ] Implement word splitting/punctuation policy.
-- [ ] Build vocab chỉ từ train captions.
-- [ ] Thêm special tokens với ID cố định.
-- [ ] Implement encode BOS/EOS/pad/truncate.
-- [ ] Implement decode và bỏ PAD/BOS/EOS đúng cách.
-- [ ] Round-trip tests.
-- [ ] Unknown-token test trên valid/test.
+- [x] Implement normalization.
+- [x] Implement word splitting/punctuation policy deterministic.
+- [x] Build vocab chỉ từ train captions.
+- [x] Thêm special tokens với ID cố định: `PAD=0`, `BOS=1`, `EOS=2`, `UNK=3`.
+- [x] Implement encode BOS/EOS/pad/truncate.
+- [x] Implement decode và bỏ PAD/BOS/EOS đúng cách.
+- [x] Round-trip/unit tests pass.
+- [x] Unknown-token behavior được unit-test; controlled valid/test hiện có `0` OOV.
+
+Vocabulary evidence:
+
+```text
+vocabulary_size = 19
+content_length   = 5..8
+max_encoded_len  = 10
+train OOV        = 0
+valid OOV        = 0
+test OOV         = 0
+```
 
 ### C. Attention/text encoder
 
-- [ ] Implement scaled dot-product attention.
-- [ ] Test output shape và attention weights sum gần 1.
-- [ ] Implement mask broadcast rõ ràng.
-- [ ] Implement multi-head split/merge.
-- [ ] Implement sinusoidal hoặc learned positional encoding từ scratch.
-- [ ] Implement feed-forward và encoder block.
-- [ ] Implement padding-aware mean pooling.
-- [ ] Test output không đổi do giá trị ở PAD position.
-- [ ] Test finite gradients.
+- [x] Implement scaled dot-product attention từ tensor ops.
+- [x] Test output shape và attention weights sum gần `1`.
+- [x] Implement boolean mask broadcast và reject fully-masked query.
+- [x] Implement multi-head split/merge từ scratch.
+- [x] Implement sinusoidal positional encoding từ scratch.
+- [x] Implement feed-forward và encoder blocks.
+- [x] Implement padding-aware masked mean pooling.
+- [x] Test valid token output/pooled representation không phụ thuộc PAD embedding values.
+- [x] Test finite gradients.
 
 ### D. Text conditioning
 
-- [ ] Project pooled text condition về time dimension.
-- [ ] Kết hợp time/text embedding trong ResBlocks.
-- [ ] Implement null prompt/prompt dropout.
-- [ ] Overfit controlled mini-batch với nhiều prompt.
-- [ ] Cùng initial noise, đổi class word.
-- [ ] Cùng initial noise, đổi color/package word.
-- [ ] Kiểm tra model có bỏ qua non-class words không.
+- [x] Project pooled text condition về condition/time dimension.
+- [x] Kết hợp time/text embedding trong diffusion ResBlocks.
+- [x] Implement null prompt và prompt dropout cho CFG training.
+- [x] Overfit controlled mini-batch `6` samples với nhiều prompts.
+- [x] Same initial noise + canonical prompts thuộc các SKU khác nhau tạo output differences có hệ thống. Đây là class-level prompt evidence; isolated class-word-only intervention vẫn có thể làm thêm như diagnostic.
+- [x] Same initial noise + chỉ đổi **color word** tạo measurable output change.
+- [x] Kiểm tra model không hoàn toàn bỏ qua non-class words bằng color prompt-swap.
+
+Mini-batch overfit evidence:
+
+```text
+parameters             = 4,970,051
+initial mean loss      = 0.21519354
+final mean loss        = 0.01194181
+final / initial        = 0.05549334
+mean prompt dropout    = 0.10155556
+```
+
+Full training evidence:
+
+```text
+device                  = Tesla T4
+train / valid            = 456 / 147
+parameters               = 4,970,051
+epochs                   = 100
+prompt dropout           = 0.10
+best epoch               = 98
+best valid loss          = 0.0145077739
+final train loss         = 0.013736
+final valid loss         = 0.014829
+```
 
 ### E. Optional cross-attention extension
 
-- [ ] Chỉ bắt đầu sau pooled baseline Definition of Done cơ bản.
+- [ ] Chỉ bắt đầu nếu muốn vượt pooled baseline; **không còn là blocker của Phase 3 functional baseline**.
 - [ ] Visual feature `[B, HW, C]` làm query.
 - [ ] Text states `[B, L, D]` làm key/value.
 - [ ] Padding mask chặn PAD key.
@@ -979,33 +1174,81 @@ Thêm vocab/min frequency/max length/text dimension/text layers/text dropout và
 
 ### F. Evaluation
 
-- [ ] Same seed/different prompt grid.
-- [ ] Same prompt/different seed diversity grid.
-- [ ] Test prompt hoán đổi một thuộc tính.
-- [ ] Test prompt có `<UNK>`.
-- [ ] Ghi failure khi từ bị bỏ qua hoặc class bleed.
-- [ ] Memorization check.
+- [x] Same seed/different canonical prompt grid.
+- [ ] Same prompt/different seed diversity grid cho Phase 3 riêng biệt.
+- [x] Test prompt hoán đổi **một thuộc tính** bằng color-word swap.
+- [ ] Sampling test với prompt chứa `<UNK>`.
+- [ ] Tách riêng failure-case set cho ignored word/class bleed.
+- [ ] Phase 3-specific nearest-training-crop memorization check.
 
-## 3.5 Output bắt buộc
+Full text-CFG fixed-noise evidence:
 
 ```text
-outputs/phase3_text_conditional/<run_id>/
-├── vocabulary.json
-├── prompt_samples/
-├── same_seed_prompt_comparison.png
-├── attribute_swap_comparison.png
-├── metrics.jsonl
-└── failure_cases.json
+scale=0.0 | 0-1=0.000000 | 0-2=0.000000 | 1-2=0.000000
+scale=1.0 | 0-1=0.093604 | 0-2=0.284754 | 1-2=0.225499
+scale=2.0 | 0-1=0.137428 | 0-2=0.436380 | 1-2=0.371193
+scale=3.0 | 0-1=0.175059 | 0-2=0.506274 | 1-2=0.448027
 ```
+
+Same-noise single-color-word prompt swaps at `CFG=2.0`:
+
+```text
+serum_white_vs_red       = 0.087546
+deodorant_blue_vs_white  = 0.067669
+lifebuoy_red_vs_blue     = 0.139538
+```
+
+Kết luận được phép từ baseline:
+
+- Text condition và text CFG hoạt động.
+- Output phản ứng có thể đo được khi chỉ đổi color token dưới fixed stochastic path.
+- Kết quả cho thấy **partial compositional sensitivity**.
+- Không được tuyên bố model đã disentangle hoàn toàn color/package/class vì train attributes còn class-correlated.
+
+## 3.5 Output/evidence hiện có
+
+```text
+outputs/phase3_text_conditional/
+├── vocabulary.json
+├── vocabulary_report.json
+├── caption_report.json
+├── best.pt
+├── last.pt
+├── checkpoint_epoch_*.pt
+├── history.json
+└── summary.json
+
+outputs/phase3_overfit_minibatch/
+├── model.pt
+└── report.json
+
+outputs/phase3_cfg_evaluation/
+├── cfg_prompt_grid.png
+└── report.json
+
+outputs/phase3_full_cfg_evaluation/
+├── cfg_prompt_grid.png
+└── report.json
+
+outputs/phase3_prompt_swap_evaluation/
+├── prompt_swap_grid.png
+└── report.json
+```
+
+Model/checkpoint artifacts không commit vào Git; code/config/tests và `task.md` được commit.
 
 ## 3.6 Definition of Done
 
-- [ ] Tokenizer/vocab/attention/text encoder tests pass.
-- [ ] Text-conditioned mini-batch overfit thành công.
-- [ ] Class word ảnh hưởng kết quả với same seed.
-- [ ] Ít nhất một thuộc tính ngoài class có ảnh hưởng đo/quan sát được, hoặc limitation được chứng minh rõ.
-- [ ] Prompt CFG hoạt động và có comparison.
-- [ ] Model chính vẫn random initialization, không pretrained text encoder.
+- [x] Tokenizer/vocab/attention/text encoder tests pass.
+- [x] Text-conditioned mini-batch overfit thành công với gate mạnh (`final/initial = 0.05549`).
+- [x] Same-seed canonical class prompts tạo output differences; isolated class-word-only swap được ghi là follow-up diagnostic chứ không được overclaim.
+- [x] Ít nhất một thuộc tính ngoài class có ảnh hưởng đo được: color-only swaps đều cho non-zero MAD.
+- [x] Prompt CFG hoạt động: `scale=0` loại hoàn toàn prompt effect và differences tăng khi guidance tăng.
+- [x] Model chính train từ random initialization, không dùng pretrained text encoder/tokenizer.
+
+**Phase 3 status:** COMPLETE — pooled-text functional baseline closed after controlled captions, train-only vocabulary, scratch attention/text encoder, prompt dropout, 6-sample overfit, 100-epoch full scratch training, fixed-noise CFG verification và single-color-word prompt-swap evaluation.
+
+**Known limitation:** train attributes còn tương quan mạnh với SKU; prompt swaps là out-of-distribution combinations. Vì vậy Phase 3 chứng minh text sensitivity/partial compositionality, không chứng minh full attribute disentanglement. Optional cross-attention, Phase-3-specific diversity, `<UNK>` sampling và memorization diagnostics vẫn là follow-up experiments, không được xem như đã hoàn thành.
 
 ---
 
@@ -1776,39 +2019,45 @@ Mỗi ablation phải giữ các biến còn lại càng giống càng tốt và
 
 # 7. Mốc tiếp theo hiện tại
 
-**Phase 1 — Unconditional Pixel-space DDPM đã hoàn thành.**
+**Phase 3 — Text-Conditioned DDPM pooled-text functional baseline đã hoàn thành.**
 
 Bằng chứng chính:
 
 ```text
-Phase 0 processed data
-→ epsilon-prediction U-Net
-→ one-image overfit
-→ mini-batch overfit
-→ full train/validation
-→ best checkpoint
-→ deterministic ancestral sampling
-→ forward-noising QA
-→ fixed-noise overfit sample
-→ denoising trajectory
-→ resume smoke test
-→ full regression test pass
+controlled captions cho 3 SKU classes
+→ train-only vocabulary (19 tokens)
+→ deterministic tokenizer + BOS/EOS/PAD/UNK
+→ custom scaled-dot-product + multi-head attention
+→ scratch Transformer-style text encoder
+→ masked mean pooled text condition
+→ prompt dropout / null prompt
+→ TextConditionalUNet
+→ 6-sample mini-batch overfit (final/initial = 0.05549)
+→ full scratch training trên Tesla T4
+→ best checkpoint epoch 98, valid loss 0.0145077739
+→ text CFG fixed-noise boundary check
+→ CFG 0 loại prompt effect hoàn toàn
+→ CFG 1/2/3 tăng prompt separation
+→ same-noise single-color-word prompt swaps
+→ documented partial-compositionality limitation
 ```
 
-Checkpoint core tiếp theo là **Phase 2 — Class-Conditioned DDPM + Classifier-Free Guidance (CFG)**.
+Checkpoint core tiếp theo là **Phase 4 — Image Captioning (Image → Text)**.
 
-Dependency còn thiếu hiện nằm ở **dataset**: dataset hiện tại chỉ có một SKU/class, nên bước tiếp theo chưa phải class embedding. Trước tiên cần mở rộng dữ liệu lên tối thiểu `2` class, khuyên dùng `3–5` class cùng cấp taxonomy.
-
-Vertical slice tiếp theo:
+Vertical slice khuyên dùng tiếp theo:
 
 ```text
-chọn 2–3 SKU/class mới
-→ chuẩn hóa class mapping
-→ thu thập/annotation COCO
-→ chạy lại Phase 0 preprocessing
-→ QA contact sheet theo từng class
-→ kiểm tra class balance
-→ sau đó mới implement ClassConditioner + condition dropout + CFG
+chốt captioning dataset/split
+→ parse image-caption pairs
+→ reuse tokenizer/vocabulary primitives từ Phase 3 khi contract phù hợp
+→ build caption vocabulary chỉ từ train split
+→ CaptionDataset + padding/collate mask
+→ inspect một DataLoader batch
+→ implement scratch CNN encoder giữ spatial tokens
+→ shape + gradient tests
+→ sau đó mới implement causal Transformer decoder + visual cross-attention
 ```
 
-Nếu muốn nghiên cứu diffusion sâu hơn trước khi mở rộng dữ liệu, có thể rẽ sang **A1 — Improved DDPM/EDM** hoặc **A2 — DDIM/Fast Sampling**, vì dependency Phase 1 của cả hai đã đạt.
+Phase 4 vẫn giữ scratch scope: CNN encoder, decoder attention và vocabulary head đều random initialization; không dùng pretrained ResNet/ViT/CLIP hoặc pretrained language model cho experiment chính.
+
+Optional diffusion follow-up có thể làm sau hoặc song song nếu muốn nghiên cứu sâu hơn: Phase 3 cross-attention, same-prompt/different-seed diversity, `<UNK>` sampling, Phase-3-specific memorization check, hoặc các nhánh A1/A2/A3. Các mục này không được tự động đánh dấu hoàn thành chỉ vì pooled Phase 3 đã đóng gate.
