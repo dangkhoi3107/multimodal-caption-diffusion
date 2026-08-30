@@ -220,7 +220,7 @@ Textual Inversion, DreamBooth và LoRA không nằm trong reading gate của F0�
 - [x] Phase 5 portfolio integration có Streamlit playground hai chiều; inference adapter restore đúng checkpoint Phase 3/4, letterbox ảnh upload và chỉ gọi implementation trong `src/`.
 - [x] Phase 5 caption decoding ablation trên `80` test samples: greedy BLEU-4 `0.4906`, beam-size `3` BLEU-4 `0.5152`; beam tăng BLEU-4 `+0.0246` nhưng exact match giảm `-0.0125`.
 - [x] Phase 5 visual-conditioning ablation: real/zero/class-mismatched visual tokens cho BLEU-4 `0.4906/0.2385/0.0000` và controlled class accuracy `1.00/0.35/0.00`.
-- [x] Full regression suite sau public-deploy integration: `208 passed` trong Conda environment với pytest temp đặt trong workspace.
+- [x] Full regression suite sau portfolio-demo integration: `209 passed` trong Conda environment với pytest temp đặt trong workspace.
 - [x] Checkpoint/model weights và experiment artifacts được lưu local/Kaggle, không commit model weights.
 
 ## 3. Cấu trúc repository mục tiêu
@@ -2114,7 +2114,7 @@ Mỗi ablation phải giữ các biến còn lại càng giống càng tốt và
 
 - [x] Problem statement.
 - [x] Scope và out-of-scope.
-- [ ] Dataset và license.
+- [x] Dataset và license: README ghi nguồn Roboflow Stock Segmentation, CC BY 4.0, split protocol và phạm vi ba held-out crops được bundle cho public demo.
 - [x] Phase architecture diagram hai chiều trong README.
 - [x] DDPM math notation nối với code tensor + contract table trong README.
 - [ ] U-Net architecture table.
@@ -2133,7 +2133,7 @@ Mỗi ablation phải giữ các biến còn lại càng giống càng tốt và
 
 ## 5.7 Definition of Done
 
-- [x] Test suite pass trong môi trường được hỗ trợ: `208 passed` trong Conda env local.
+- [x] Test suite pass trong môi trường được hỗ trợ: `209 passed` trong Conda env local.
 - [x] Phase 1–4 đều có checkpoint/artifact/metric theo scope thực hiện.
 - [x] Ít nhất hai ablation được báo cáo trung thực: CFG scale, greedy-vs-beam và real-vs-perturbed visual tokens.
 - [ ] Có memorization/failure-case analysis.

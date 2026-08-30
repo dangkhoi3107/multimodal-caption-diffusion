@@ -23,13 +23,15 @@ The diagram summarizes the intended path from COCO-style product data and prepro
 | Class-conditioned generation | class embeddings, condition dropout, CFG | 3 classes, same-noise class control, diversity and memorization checks |
 | Text-conditioned generation | word vocabulary, tokenizer, attention, text encoder, text CFG | 4.97M parameters, prompt/CFG sensitivity, fixed-seed prompt swaps |
 | Image captioning | CNN visual tokens, causal self-attention, visual cross-attention, greedy and beam decoding, BLEU | 4.39M parameters, 80-image held-out evaluation |
-| Integrated demo | checkpoint validation, live denoising preview, letterbox preprocessing, lazy model loading, verified checkpoint downloads | 208 automated tests plus real-checkpoint smoke test |
+| Integrated demo | checkpoint validation, live denoising preview, letterbox preprocessing, lazy model loading, verified checkpoint downloads | 209 automated tests plus real-checkpoint smoke test |
 
 The detailed phase gates and deferred work live in [`task.md`](task.md). A checked item there requires a test, metric, artifact, or reproducible command; creating a file alone is not considered evidence.
 
 ## Try the playground
 
-The demo is a **two-way playground**, not a chatbot: these models generate product images and controlled captions, but they are not conversational models.
+The demo is a **four-page portfolio**, not a chatbot. The Overview explains the
+dataset and tensor flow, the two playground pages run real checkpoints, and the
+Evidence page exposes held-out metrics, ablations, and limitations.
 
 ```bash
 conda activate multimodal-caption-diffusion
@@ -39,8 +41,13 @@ streamlit run demo/streamlit_app.py
 
 Open `http://localhost:8501`, then choose:
 
+- **Overview:** inspect the end-to-end phase flow, tensor contracts, class counts,
+  and one bundled held-out crop per product class.
 - **Text → image:** enter a controlled prompt, CFG scale, and seed. The verified DDPM sampler runs all 1,000 reverse steps and can stream every state from Gaussian noise to the final image. Disable the per-step checkbox for a lighter 20-frame preview on slower machines.
-- **Image → caption:** upload one centered product image and compare greedy with beam-search decoding.
+- **Image → caption:** run greedy or beam decoding on one of three bundled test
+  examples, or upload a centered product image.
+- **Evidence:** review caption metrics, visual-conditioning ablation, a fixed-noise
+  CFG grid, reproducibility commands, and honest limitations.
 
 The UI loads only the selected model after submission and caches it for later runs. Captioning is practical on CPU; text-to-image is best demonstrated with CUDA because a full ancestral DDPM chain is deliberately not shortened without a verified DDIM/solver implementation.
 
@@ -112,7 +119,13 @@ For DDPM, the code maps the usual notation directly: `x_0` is the clean image, `
 
 ## Dataset and protocol
 
-The project uses a local COCO-style product dataset. Raw images are immutable and not redistributed in this repository because the export's redistribution/license terms have not been documented. To reproduce training, place an authorized copy under `data/raw/` as described in [`data/README.md`](data/README.md).
+The project uses the COCO-style [Stock Segmentation dataset on
+Roboflow](https://universe.roboflow.com/dfdfdfd-d1nyr/stock_segmentation-dzocz),
+provided under CC BY 4.0. Raw images remain immutable and ignored under
+`data/raw/`; the repository redistributes only three small, processed held-out
+crops for the public portfolio demo, with one crop per SKU class. To reproduce
+training, place an authorized copy under `data/raw/` as described in
+[`data/README.md`](data/README.md).
 
 The processed three-class experiment contains 683 product instances:
 
@@ -241,7 +254,7 @@ python -m scripts.evaluate_phase5_visual_conditioning \
 
 ```text
 multimodal-caption-diffusion/
-├── demo/                  # Streamlit UI and tested inference adapters
+├── demo/                  # multipage Streamlit UI, curated assets, inference adapters
 ├── configs/               # reproducible experiment configuration
 ├── data/                  # ignored raw and reproducibly generated data
 ├── docs/                  # curricula, papers, and architecture ownership
